@@ -1,9 +1,9 @@
+#ifndef NumColor
+#define NumColor
+
 #include <SFML/Graphics.hpp>
 
 using namespace std;
-
-#ifndef NumColor
-#define NumColor
 
 class NumColor {
 	sf::Uint8 r, g, b, a;

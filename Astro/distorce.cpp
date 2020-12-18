@@ -10,6 +10,7 @@
 #include <fstream>
 #include <math.h>
 #include <SFML/Graphics.hpp>
+#include "NumColor.hpp"
 
 using namespace std;
 using namespace sf;
@@ -21,7 +22,7 @@ double sign(double x) {
 }
 
 Color interpolation(double x, double y, Image image) {
-	Color pixel[4];
+	Color pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
 		return image.getPixel(x, y);
