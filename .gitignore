@@ -345,3 +345,7 @@ healthchecksdb
 
 
 Astro/*.dll
+Astro/Astro.vcxproj
+Astro/Astro.vcxproj.filters
+Astro/Astro.vcxproj.user
+Astro.sln
