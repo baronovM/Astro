@@ -119,18 +119,20 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
+	Vector2u imgSize = inImage.getSize();
+
 	// Вывод изображения в окне.
-	RenderWindow window(VideoMode(inImage.getSize().x, inImage.getSize().y), "Source");
+	RenderWindow in_window(VideoMode(imgSize.x, imgSize.y), "Source");
 
-	Texture inImgTxtr;
-	inImgTxtr.loadFromImage(inImage);
-	Sprite inImgSprt;
-	inImgSprt.setTexture(inImgTxtr);
+	Texture ImgTxtr;
+	ImgTxtr.loadFromImage(inImage);
+	Sprite ImgSprt;
+	ImgSprt.setTexture(ImgTxtr);
 	
-	window.draw(inImgSprt);
+	in_window.draw(ImgSprt);
 
-	int pivotX = inImage.rows / 2;
-	int pivotY = inImage.cols / 2;
+	int pivotX = imgSize.x / 2;
+	int pivotY = imgSize.y / 2;
 	double theta = PI / 4;
 	double theR;
 
@@ -144,10 +146,11 @@ int main(int argc, char** argv) {
 		else f = theR * k / sin(k * theta);
 	}
 
-	Mat_<Vec3b> outImage(inImage.rows, inImage.cols, CV_8UC3);	// Итоговое изображение.
+	Image outImage;	// Итоговое изображение.
+	outImage.create(imgSize.x, imgSize.y);
 
-	for (int x = 0; x < outImage.rows; x++) {
-		for (int y = 0; y < outImage.cols; y++) {
+	for (int x = 0; x < imgSize.x; x++) {
+		for (int y = 0; y < imgSize.y; y++) {
 			int xx = x - pivotX;
 			int yy = y - pivotY;
 			double alpha, r, dist = sqrt(xx * xx + yy * yy);
@@ -161,18 +164,43 @@ int main(int argc, char** argv) {
 			double sourceX = pivotX + r * cos(alpha);
 			double sourceY = pivotY + r * sin(alpha);
 
-			if (sourceX < 0 || sourceX >= outImage.rows - 1 || sourceY < 0 || sourceY >= outImage.cols - 1)
+			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
 
 			/*for (int i = 0; i <= 2; i++)
 				outImage(x, y)[i] = inImage(round(sourceX), round(sourceY))[i];*/
-			outImage(x, y) = interpolation(sourceX, sourceY, inImage);
+			outImage.setPixel(x, y, interpolation(sourceX, sourceY, inImage));
 		}
 	}
 
 	// Вывод изображения в окне.
-	namedWindow("Result", WINDOW_AUTOSIZE);
-	imshow("Result", outImage);
-	waitKey(0);
-	imwrite(relativePath + "outImage.jpg", outImage);
+
+	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
+
+	ImgTxtr.loadFromImage(inImage);
+	ImgSprt.setTexture(ImgTxtr, true);
+
+	out_window.draw(ImgSprt);
+
+
+	while (out_window.isOpen())
+	{
+		Event event;
+		while (out_window.pollEvent(event))
+		{
+			if (event.type == Event::Closed) {
+				in_window.close();
+				out_window.close();
+			}
+		}
+		while (in_window.pollEvent(event))
+		{
+			if (event.type == Event::Closed) {
+				in_window.close();
+				out_window.close();
+			}
+		}
+	}
+
+	outImage.saveToFile(relativePath + "outImage.jpg");
 }
