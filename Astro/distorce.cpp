@@ -113,18 +113,21 @@ int main(int argc, char** argv) {
 		imagePath = tempPath;
 	}
 
-	ifstream file(imagePath);
-	if (!file.is_open()) {
+	Image inImage;
+	if (!inImage.loadFromFile(imagePath)) {
 		cout << "Не удалось считать изображение. " << guide;
 		return 0;
 	}
-	else file.close();
 
-	Mat_<Vec3b> inImage;
-	inImage = imread(imagePath, IMREAD_COLOR);   // Считывание изображения.
 	// Вывод изображения в окне.
-	namedWindow("Source", WINDOW_AUTOSIZE);
-	imshow("Source", inImage);
+	RenderWindow window(VideoMode(inImage.getSize().x, inImage.getSize().y), "Source");
+
+	Texture inImgTxtr;
+	inImgTxtr.loadFromImage(inImage);
+	Sprite inImgSprt;
+	inImgSprt.setTexture(inImgTxtr);
+	
+	window.draw(inImgSprt);
 
 	int pivotX = inImage.rows / 2;
 	int pivotY = inImage.cols / 2;
