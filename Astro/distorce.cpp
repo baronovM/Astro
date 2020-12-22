@@ -10,37 +10,63 @@
 #include <fstream>
 #include <math.h>
 #include <SFML/Graphics.hpp>
-#include "NumColor.hpp"
+//#include "NumColor.hpp"
 
 using namespace std;
 using namespace sf;
+
 #define guide "Используйте \"Reverse_Fisheye_Project.exe <k> [f] <image_path>\".\n"
 #define PI 3.1415926536
+
+
+
+class NumColor : public Color {
+public:
+	NumColor() {
+		r = 0; g = 0; b = 0; a = 0;
+	}
+
+	NumColor(Color c) {
+		r = c.r;
+		g = c.g;
+		b = c.b;
+		a = c.a;
+	}
+
+	NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1) {
+		r = r1;
+		g = g1;
+		b = b1;
+		a = a1;
+	}
+	NumColor operator*(const double& k) const {
+		return NumColor(r * k, g * k, b * k, a);
+	}
+};
+
+
 
 double sign(double x) {
 	return (x >= 0.0 ? 1.0 : -1.0);
 }
 
 Color interpolation(double x, double y, Image image) {
-	Color pixel;
+	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
 		return image.getPixel(x, y);
 	if (x1 == x2) {
-		pixel = ((y2 - y) / (y2 - y1)) * image.getPixel(x, y1) + ((y - y1) / (y2 - y1)) * image.getPixel(x, y2);
+		pixel = NumColor(image.getPixel(x, y1)) * ((y2 - y) / (y2 - y1)) + NumColor(image.getPixel(x, y2)) * ((y - y1) / (y2 - y1));
 		return pixel;
 	}
 	if (y1 == y2) {
-		for (int i = 0; i <= 2; i++)
-			pixel[i] = ((x2 - x) / (x2 - x1)) * image(x1, y)[i] + ((x - x1) / (x2 - x1)) * image(x2, y)[i];
+			pixel = NumColor(image.getPixel(x1, y)) * ((x2 - x) / (x2 - x1)) + NumColor(image.getPixel(x2, y)) * ((x - x1) / (x2 - x1));
 		return pixel;
 	}
 
-	for (int i = 0; i <= 2; i++) {
-		double r1 = ((x2 - x) / (x2 - x1)) * image(x1, y1)[i] + ((x - x1) / (x2 - x1)) * image(x2, y1)[i];
-		double r2 = ((x2 - x) / (x2 - x1)) * image(x1, y2)[i] + ((x - x1) / (x2 - x1)) * image(x2, y2)[i];
-		pixel[i] = ((y2 - y) / (y2 - y1)) * r1 + ((y - y1) / (y2 - y1)) * r2;
-	}
+	NumColor r1 = NumColor(image.getPixel(x1, y1)) * ((x2 - x) / (x2 - x1)) + NumColor(image.getPixel(x2, y1)) * ((x - x1) / (x2 - x1));
+	NumColor r2 = NumColor(image.getPixel(x1, y2)) * ((x2 - x) / (x2 - x1)) + NumColor(image.getPixel(x2, y2)) * ((x - x1) / (x2 - x1));
+	pixel = r1 * ((y2 - y) / (y2 - y1)) + r2 * ((y - y1) / (y2 - y1));
 	return pixel;
 }
 
