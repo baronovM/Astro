@@ -75,23 +75,24 @@ int main() {
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
 	int argc;
-	cin >> argc;
+	//cin >> argc;
 
-	if (argc < 3 || argc > 4) {
+	/*if (argc < 3 || argc > 4) {
 		cout << "Неверные параметры. " << guide;
+		system("pause");
 		return 0;
-	}
+	}*/
 
-	string relativePath;	// Путь до программы.
+	/*string relativePath;	// Путь до программы.
 	cin >> relativePath;
 	relativePath.erase(relativePath.length() - 27);
 	string inK;	// Пользовательский ввод.
-	cin >> inK;
-	k = stod(inK);
+	cin >> inK;*/
+	k = -1;//k = stod(inK);
 	string inFocal = "0,0";
-	string imagePath;
+	string imagePath="image.jpg";
 
-	switch (argc) {
+	/*switch (argc) {
 	case 3:
 		cin >> imagePath;
 		break;
@@ -99,27 +100,30 @@ int main() {
 		cin >> inFocal;
 		if (!isdigit(inFocal[0])) {
 			cout << "Неверные параметры. " << guide;
+			system("pause");
 			return 0;
 		}
 		cin >> imagePath;
 	}
 	if (k > 1.0 || k < -1.0) {
 		cout << "Неверные параметры. " << guide;
+		system("pause");
 		return 0;
-	}
+	}*/
 
 	f = stod(inFocal);
 
 	// Если нет '\', указано лишь имя файла. 
-	if (!imagePath.find('\\')) {
+	/*if (!imagePath.find('\\')) {
 		string tempPath = relativePath;
 		tempPath += imagePath;
 		imagePath = tempPath;
-	}
+	}*/
 
 	Image inImage;
 	if (!inImage.loadFromFile(imagePath)) {
 		cout << "Не удалось считать изображение. " << guide;
+		system("pause");
 		return 0;
 	}
 
@@ -134,6 +138,7 @@ int main() {
 	ImgSprt.setTexture(ImgTxtr);
 	
 	in_window.draw(ImgSprt);
+	in_window.display();
 
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
@@ -181,10 +186,11 @@ int main() {
 
 	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
-	ImgTxtr.loadFromImage(inImage);
+	ImgTxtr.loadFromImage(outImage);
 	ImgSprt.setTexture(ImgTxtr, true);
 
 	out_window.draw(ImgSprt);
+	out_window.display();
 
 
 	while (out_window.isOpen())
@@ -206,5 +212,5 @@ int main() {
 		}
 	}
 
-	outImage.saveToFile(relativePath + "outImage.jpg");
+	outImage.saveToFile("outImage.jpg");
 }
