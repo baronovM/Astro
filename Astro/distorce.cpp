@@ -70,34 +70,38 @@ Color interpolation(double x, double y, Image image) {
 	return pixel;
 }
 
-int main(int argc, char** argv) {
+int main() {
 	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
+	int argc;
+	cin >> argc;
 
 	if (argc < 3 || argc > 4) {
 		cout << "Неверные параметры. " << guide;
 		return 0;
 	}
 
-	string relativePath = argv[0];	// Путь до программы.
+	string relativePath;	// Путь до программы.
+	cin >> relativePath;
 	relativePath.erase(relativePath.length() - 27);
-	string inK = argv[1];	// Пользовательский ввод.
+	string inK;	// Пользовательский ввод.
+	cin >> inK;
 	k = stod(inK);
 	string inFocal = "0,0";
 	string imagePath;
 
 	switch (argc) {
 	case 3:
-		imagePath = argv[2];
+		cin >> imagePath;
 		break;
 	case 4:
-		inFocal = argv[2];
+		cin >> inFocal;
 		if (!isdigit(inFocal[0])) {
 			cout << "Неверные параметры. " << guide;
 			return 0;
 		}
-		imagePath = argv[3];
+		cin >> imagePath;
 	}
 	if (k > 1.0 || k < -1.0) {
 		cout << "Неверные параметры. " << guide;
