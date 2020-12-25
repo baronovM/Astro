@@ -88,7 +88,7 @@ int main() {
 	relativePath.erase(relativePath.length() - 27);
 	string inK;	// Пользовательский ввод.
 	cin >> inK;*/
-	k = -1;//k = stod(inK);
+	k = 1.3;//k = stod(inK);
 	//string inFocal = "0,0";
 	string imagePath="image.jpg";
 
