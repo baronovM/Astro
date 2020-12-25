@@ -70,52 +70,60 @@ Color interpolation(double x, double y, Image image) {
 	return pixel;
 }
 
-int main(int argc, char** argv) {
+int main() {
 	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
+	int argc;
+	//cin >> argc;
 
-	if (argc < 3 || argc > 4) {
+	/*if (argc < 3 || argc > 4) {
 		cout << "Неверные параметры. " << guide;
+		system("pause");
 		return 0;
-	}
+	}*/
 
-	string relativePath = argv[0];	// Путь до программы.
+	/*string relativePath;	// Путь до программы.
+	cin >> relativePath;
 	relativePath.erase(relativePath.length() - 27);
-	string inK = argv[1];	// Пользовательский ввод.
-	k = stod(inK);
+	string inK;	// Пользовательский ввод.
+	cin >> inK;*/
+	k = -1;//k = stod(inK);
 	string inFocal = "0,0";
-	string imagePath;
+	string imagePath="image.jpg";
 
-	switch (argc) {
+	/*switch (argc) {
 	case 3:
-		imagePath = argv[2];
+		cin >> imagePath;
 		break;
 	case 4:
-		inFocal = argv[2];
+		cin >> inFocal;
 		if (!isdigit(inFocal[0])) {
 			cout << "Неверные параметры. " << guide;
+			system("pause");
 			return 0;
 		}
-		imagePath = argv[3];
+		cin >> imagePath;
 	}
 	if (k > 1.0 || k < -1.0) {
 		cout << "Неверные параметры. " << guide;
+		system("pause");
 		return 0;
-	}
+	}*/
 
 	f = stod(inFocal);
 
 	// Если нет '\', указано лишь имя файла. 
-	if (!imagePath.find('\\')) {
+	/*if (!imagePath.find('\\')) {
 		string tempPath = relativePath;
 		tempPath += imagePath;
 		imagePath = tempPath;
-	}
+	}*/
 
 	Image inImage;
 	if (!inImage.loadFromFile(imagePath)) {
 		cout << "Не удалось считать изображение. " << guide;
+		system("pause");
 		return 0;
 	}
 
@@ -130,6 +138,7 @@ int main(int argc, char** argv) {
 	ImgSprt.setTexture(ImgTxtr);
 	
 	in_window.draw(ImgSprt);
+	in_window.display();
 
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
@@ -177,10 +186,11 @@ int main(int argc, char** argv) {
 
 	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
-	ImgTxtr.loadFromImage(inImage);
+	ImgTxtr.loadFromImage(outImage);
 	ImgSprt.setTexture(ImgTxtr, true);
 
 	out_window.draw(ImgSprt);
+	out_window.display();
 
 
 	while (out_window.isOpen())
@@ -202,5 +212,5 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	outImage.saveToFile(relativePath + "outImage.jpg");
+	outImage.saveToFile("outImage.jpg");
 }
