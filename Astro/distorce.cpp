@@ -89,7 +89,7 @@ int main() {
 	string inK;	// Пользовательский ввод.
 	cin >> inK;*/
 	k = -1;//k = stod(inK);
-	string inFocal = "0,0";
+	//string inFocal = "0,0";
 	string imagePath="image.jpg";
 
 	/*switch (argc) {
@@ -111,7 +111,7 @@ int main() {
 		return 0;
 	}*/
 
-	f = stod(inFocal);
+	f = 0.0;//f = stod(inFocal);
 
 	// Если нет '\', указано лишь имя файла. 
 	/*if (!imagePath.find('\\')) {
@@ -145,9 +145,7 @@ int main() {
 	double theta = PI / 4;
 	double theR;
 
-	if (pivotX >= pivotY)
-		theR = pivotY;
-	else theR = pivotX;
+	theR = min(pivotX, pivotY);
 	
 	if (f == 0.0) {
 		if (k == 0.0) f = theR / theta;
@@ -163,9 +161,9 @@ int main() {
 			int xx = x - pivotX;
 			int yy = y - pivotY;
 			double alpha, r, dist = sqrt(xx * xx + yy * yy);
-			alpha = atan2((double)xx, (double)yy);
+			alpha = atan2((double)yy, (double)xx);
 
-			double phi = atan2(f, dist);
+			double phi = atan2(dist, f);
 			if (k == 0.0) r = f * phi;
 			else if (k < 0.0) r = f * sin(phi * k) / k;
 			else r = f * tan(phi * k) / k;
