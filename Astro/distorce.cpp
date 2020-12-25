@@ -74,44 +74,12 @@ int main() {
 	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
-	int argc;
-	//cin >> argc;
 
-	/*if (argc < 3 || argc > 4) {
-		cout << "Неверные параметры. " << guide;
-		system("pause");
-		return 0;
-	}*/
+	string imagePath;
+	cout << "Введите коэффициент k и название изображения - {k} {Название, без пробелов и с расширением}:\n";
+	cin >> k >> imagePath;
 
-	/*string relativePath;	// Путь до программы.
-	cin >> relativePath;
-	relativePath.erase(relativePath.length() - 27);
-	string inK;	// Пользовательский ввод.
-	cin >> inK;*/
-	k = 1.3;//k = stod(inK);
-	//string inFocal = "0,0";
-	string imagePath="image.jpg";
-
-	/*switch (argc) {
-	case 3:
-		cin >> imagePath;
-		break;
-	case 4:
-		cin >> inFocal;
-		if (!isdigit(inFocal[0])) {
-			cout << "Неверные параметры. " << guide;
-			system("pause");
-			return 0;
-		}
-		cin >> imagePath;
-	}
-	if (k > 1.0 || k < -1.0) {
-		cout << "Неверные параметры. " << guide;
-		system("pause");
-		return 0;
-	}*/
-
-	f = 0.0;//f = stod(inFocal);
+	f = 0.0;
 
 	// Если нет '\', указано лишь имя файла. 
 	/*if (!imagePath.find('\\')) {
