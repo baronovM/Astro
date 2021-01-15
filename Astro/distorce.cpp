@@ -75,9 +75,9 @@ int main() {
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
 
-	string imagePath;
-	cout << "Введите коэффициент k и название изображения - {k} {Название, без пробелов и с расширением}:\n";
-	cin >> k >> imagePath;
+	string imagePath, outImagePath;
+	cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
+	cin >> k >> imagePath >> outImagePath;
 
 	f = 0.0;
 
@@ -131,7 +131,7 @@ int main() {
 			double alpha, r, dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
-			double phi = atan2(dist, f);
+			double phi = dist / f;
 			if (k == 0.0) r = f * phi;
 			else if (k < 0.0) r = f * sin(phi * k) / k;
 			else r = f * tan(phi * k) / k;
@@ -178,5 +178,5 @@ int main() {
 		}
 	}
 
-	outImage.saveToFile("outImage.jpg");
+	outImage.saveToFile(outImagePath);
 }
