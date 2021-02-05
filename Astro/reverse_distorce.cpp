@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 //#include "NumColor.hpp"
 
@@ -70,14 +70,26 @@ Color interpolation(double x, double y, Image image) {
 	return pixel;
 }
 
-int main() {
+int main(int argc, char** argstr) {
 	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
 
 	string imagePath, outImagePath;
-	cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
-	cin >> k >> imagePath >> outImagePath;
+	bool silent = 0;
+	if (argc == 1) {
+		cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
+		cin >> k >> imagePath >> outImagePath;
+	}
+	else {
+		k = atoi(argstr[1]) / 100.0;
+		imagePath = argstr[2];
+		outImagePath = argstr[3];
+		if (argc == 5)
+			silent = atoi(argstr[4]);
+		cout << argstr[1];
+		cout << k << endl;
+	}
 
 	f = 0.0;
 
@@ -97,16 +109,19 @@ int main() {
 
 	Vector2u imgSize = inImage.getSize();
 
-	// Вывод изображения в окне.
-	RenderWindow in_window(VideoMode(imgSize.x, imgSize.y), "Source");
-
 	Texture ImgTxtr;
 	ImgTxtr.loadFromImage(inImage);
 	Sprite ImgSprt;
 	ImgSprt.setTexture(ImgTxtr);
-	
-	in_window.draw(ImgSprt);
-	in_window.display();
+
+	RenderWindow in_window;
+	if (!silent) {
+		// Вывод изображения в окне.
+		//in_window.setSize({ imgSize.x, imgSize.y });
+		in_window.create(VideoMode(imgSize.x, imgSize.y), "Source");
+		in_window.draw(ImgSprt);
+		in_window.display();
+	}
 
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
@@ -149,32 +164,34 @@ int main() {
 		}
 	}
 
-	// Вывод изображения в окне.
+	if (!silent) {
+		// Вывод изображения в окне.
 
-	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
+		RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
-	ImgTxtr.loadFromImage(outImage);
-	ImgSprt.setTexture(ImgTxtr, true);
+		ImgTxtr.loadFromImage(outImage);
+		ImgSprt.setTexture(ImgTxtr, true);
 
-	out_window.draw(ImgSprt);
-	out_window.display();
+		out_window.draw(ImgSprt);
+		out_window.display();
 
 
-	while (out_window.isOpen())
-	{
-		Event event;
-		while (out_window.pollEvent(event))
+		while (out_window.isOpen())
 		{
-			if (event.type == Event::Closed) {
-				in_window.close();
-				out_window.close();
+			Event event;
+			while (out_window.pollEvent(event))
+			{
+				if (event.type == Event::Closed) {
+					in_window.close();
+					out_window.close();
+				}
 			}
-		}
-		while (in_window.pollEvent(event))
-		{
-			if (event.type == Event::Closed) {
-				in_window.close();
-				out_window.close();
+			while (in_window.pollEvent(event))
+			{
+				if (event.type == Event::Closed) {
+					in_window.close();
+					out_window.close();
+				}
 			}
 		}
 	}
