@@ -131,14 +131,14 @@ int main() {
 			double alpha, r, dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
-			double theta;	// = dist / f;
+			double theta;
 			r = dist;
 			if (k == 0.0) theta = r / f;
 			else if (k < 0.0) theta = asin(r*k/f)/k;
 			else theta = asin(r * k / f) / k;
 
-			double sourceX = pivotX + r * cos(theta);
-			double sourceY = pivotY + r * sin(theta);
+			double sourceX = pivotX + theta * f * cos(alpha);
+			double sourceY = pivotY + theta * f * sin(alpha);
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
