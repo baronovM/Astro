@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 //#include "NumColor.hpp"
 
 using namespace std;
