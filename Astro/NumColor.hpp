@@ -1,21 +1,19 @@
-#ifndef NumColor
-#define NumColor
+#ifndef NumCol
+#define NumCol
 
 #include <SFML/Graphics.hpp>
 
 using namespace std;
+using namespace sf;
 
-class NumColor {
-	sf::Uint8 r, g, b, a;
+class NumColor : public Color {
 public:
-	NumColor(sf::Uint8 r1, sf::Uint8 g1, sf::Uint8 b1, sf::Uint8 a1) {
-		r = r1;
-		g = g1;
-		b = b1;
-		a = a1;
-	}
-	NumColor operator*(const int& k) const {
-		return NumColor(r * k, g * k, b * k, a);
+	NumColor();
+
+	NumColor(Color c);
+
+	NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1);
+	NumColor operator*(const double& k) const;
 };
 
-#endif
+#endif //!NumCol

@@ -10,39 +10,12 @@
 #include <fstream>
 #include <cmath>
 #include "SFML/Graphics.hpp"
-//#include "NumColor.hpp"
+#include "NumColor.hpp"
 
 using namespace std;
 using namespace sf;
 
 #define guide "Используйте \"Reverse_Fisheye_Project.exe <k> [f] <image_path>\".\n"
-#define PI 3.1415926536
-
-
-
-class NumColor : public Color {
-public:
-	NumColor() {
-		r = 0; g = 0; b = 0; a = 0;
-	}
-
-	NumColor(Color c) {
-		r = c.r;
-		g = c.g;
-		b = c.b;
-		a = c.a;
-	}
-
-	NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1) {
-		r = r1;
-		g = g1;
-		b = b1;
-		a = a1;
-	}
-	NumColor operator*(const double& k) const {
-		return NumColor(r * k, g * k, b * k, a);
-	}
-};
 
 
 
@@ -125,7 +98,7 @@ int main(int argc, char** argstr) {
 
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
-	double thetaMax = PI / 4;
+	double thetaMax = M_PI / 4;
 	double theR;
 
 	theR = min(pivotX, pivotY);
