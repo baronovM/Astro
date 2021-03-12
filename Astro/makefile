@@ -6,11 +6,15 @@ SFML_INCL= -I'c:\SFML-2.5.1\include'
 
 all: distorce.exe reverse_distorce.exe
 
-NumColor.o: NumColor.hpp makefile NumColor.cpp
-	g++ $< $(SFML_INCL) -c -o $@ 
+#NumColor.o: NumColor.hpp makefile NumColor.cpp
+#	g++ $< $(SFML_INCL) -c -o $@ 
 
-distorce.exe reverse_distorce.exe: %.exe : %.cpp NumColor.o NumColor.hpp makefile
-	g++ -Wl,-r $< $(SFML_INCL)   -o $@ $(SFML_LIBS) NumColor.o 'C:\SFML-2.5.1\lib\libsfml-main.a'
+#distorce.exe reverse_distorce.exe: %.exe : %.cpp NumColor.o NumColor.hpp makefile
+#	g++ -Wl,-r $< $(SFML_INCL)   -o $@ $(SFML_LIBS) NumColor.o 'C:\SFML-2.5.1\lib\libsfml-main.a'
+
+distorce.exe reverse_distorce.exe: %.exe : %.cpp makefile
+	g++ $< $(SFML_INCL)   -o $@ $(SFML_LIBS) 'C:\SFML-2.5.1\lib\libsfml-main.a'
+
 
 #distorce.exe: distorce.cpp Makefile
 #	g++ '$<' $(SFML_INCL)  -o $@ $(SFML_LIBS)

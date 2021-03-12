@@ -2,7 +2,7 @@
 #include <fstream>
 #include <math.h>
 #include "SFML/Graphics.hpp"
-#include "NumColor.hpp"
+//#include "NumColor.hpp"
 
 using namespace std;
 using namespace sf;
