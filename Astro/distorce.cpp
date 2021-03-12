@@ -88,9 +88,14 @@ int main(int argc, char** argstr) {
 		cout << k << endl;
 	}
 */
+
+
+
 	string imagePath, outImagePath;
-	cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
+	cout << "Введите коэффициент k в процентах, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
 	cin >> k >> imagePath >> outImagePath;
+	
+	k=k/100.;
 
 	f = 0.0;
 
@@ -163,7 +168,7 @@ int main(int argc, char** argstr) {
 
 	// Вывод изображения в окне.
 
-	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
+/*	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
 	ImgTxtr.loadFromImage(outImage);
 	ImgSprt.setTexture(ImgTxtr, true);
@@ -189,7 +194,7 @@ int main(int argc, char** argstr) {
 				out_window.close();
 			}
 		}
-	}
+	}*/
 
 	outImage.saveToFile(outImagePath);
 }
