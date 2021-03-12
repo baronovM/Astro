@@ -13,7 +13,7 @@ all: distorce.exe reverse_distorce.exe
 #	g++ -Wl,-r $< $(SFML_INCL)   -o $@ $(SFML_LIBS) NumColor.o 'C:\SFML-2.5.1\lib\libsfml-main.a'
 
 distorce.exe reverse_distorce.exe: %.exe : %.cpp makefile
-	g++ $< $(SFML_INCL)   -o $@ $(SFML_LIBS) 'C:\SFML-2.5.1\lib\libsfml-main.a'
+	g++ -ggdb $< $(SFML_INCL)   -o $@ $(SFML_LIBS) 'C:\SFML-2.5.1\lib\libsfml-main.a'
 
 
 #distorce.exe: distorce.cpp Makefile
