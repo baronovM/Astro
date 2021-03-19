@@ -1,4 +1,4 @@
-SFML_LIBS= -L'c:\SFML-2.5.1\lib' -lsfml-main -lsfml-system -lsfml-window -lsfml-graphics -lvorbis
+SFML_LIBS= -L'c:\SFML-2.5.1\lib' -lsfml-main -lsfml-system -lsfml-window -lsfml-graphics
 #SFML_LIBS= -L'c:\SFML-2.5.1\lib' -lsfml-main -lsfml-system -lsfml-graphics -lvorbis -L'c:\SFML-2.5.1\bin'
 SFML_INCL= -I'c:\SFML-2.5.1\include'
 
