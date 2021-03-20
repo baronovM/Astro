@@ -136,7 +136,7 @@ int main(int argc, char** argstr) {
 	if (f == 0.0) {
 		if (k == 0.0) f = theR / theta;
 		else if (k > 0.0) f = theR * k / tan(k * theta);
-		else f = theR * k / sin(k * theta);
+		else{ f = theR * k / sin(k * theta); if(k<-1) f*=fabs(k);}
 	}
 
 	Image outImage;	// Итоговое изображение.
