@@ -43,9 +43,6 @@ NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
 }
 
-double sign(double x) {
-	return (x >= 0.0 ? 1.0 : -1.0);
-}
 
 Color interpolation(double x, double y, Image image) {
 	NumColor pixel;

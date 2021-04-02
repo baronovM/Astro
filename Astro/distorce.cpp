@@ -43,10 +43,6 @@ NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
 }
 
-double sign(double x) {
-	return (x >= 0.0 ? 1.0 : -1.0);
-}
-
 Color interpolation(double x, double y, Image image) {
 	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
@@ -72,29 +68,23 @@ int main(int argc, char** argstr) {
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
 
-/*
+
     string imagePath, outImagePath;
 	bool silent = 0;
 	if (argc == 1) {
-		cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
+		cout << "Введите коэффициент k в процентах, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
 		cin >> k >> imagePath >> outImagePath;
 	}
 	else {
-		k = atoi(argstr[1]) / 100.0;
+		k = atoi(argstr[1]);
 		imagePath = argstr[2];
 		outImagePath = argstr[3];
 		if (argc == 5)
 			silent = atoi(argstr[4]);
-		cout << argstr[1];
+		cout << argstr[1] << " ";
 		cout << k << endl;
 	}
-*/
 
-
-
-	string imagePath, outImagePath;
-	cout << "Введите коэффициент k в процентах, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
-	cin >> k >> imagePath >> outImagePath;
 	
 	k=k/100.;
 
@@ -161,15 +151,13 @@ int main(int argc, char** argstr) {
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
 
-			/*for (int i = 0; i <= 2; i++)
-				outImage(x, y)[i] = inImage(round(sourceX), round(sourceY))[i];*/
 			outImage.setPixel(x, y, interpolation(sourceX, sourceY, inImage));
 		}
 	}
 
 	// Вывод изображения в окне.
 
-/*	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
+	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
 	ImgTxtr.loadFromImage(outImage);
 	ImgSprt.setTexture(ImgTxtr, true);
@@ -195,7 +183,7 @@ int main(int argc, char** argstr) {
 				out_window.close();
 			}
 		}
-	}*/
+	}
 
 	outImage.saveToFile(outImagePath);
 }
