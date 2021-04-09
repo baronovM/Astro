@@ -43,6 +43,14 @@ NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
 }
 
+double ptgui(double r,void* param){
+ double k=*((double*)param);
+ double f=*((double*)param+1); 
+ if (k == 0.0) return r;
+ else if (k < 0.0) return f*asin(r*k/f)/k;
+ else return f*atan(r * k / f) / k; 
+}
+
 
 Color interpolation(double x, double y, Image image) {
 	NumColor pixel;
@@ -108,15 +116,6 @@ int main(int argc, char** argstr) {
 	Sprite ImgSprt;
 	ImgSprt.setTexture(ImgTxtr);
 
-	RenderWindow in_window;
-	if (!silent) {
-		// Вывод изображения в окне.
-		//in_window.setSize({ imgSize.x, imgSize.y });
-		in_window.create(VideoMode(imgSize.x, imgSize.y), "Source");
-		in_window.draw(ImgSprt);
-		in_window.display();
-	}
-
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
 	double thetaMax = M_PI / 4;
@@ -144,7 +143,7 @@ int main(int argc, char** argstr) {
 			r = dist;
 			if (k == 0.0) theta = r / f;
 			else if (k < 0.0) theta = asin(r*k/f)/k;
-			else theta = atan(r * k / f) / k;
+			else theta = asin(r * k / f) / k;
 
 			double sourceX = pivotX + theta * f * cos(alpha);
 			double sourceY = pivotY + theta * f * sin(alpha);
@@ -157,38 +156,5 @@ int main(int argc, char** argstr) {
 			outImage.setPixel(x, y, interpolation(sourceX, sourceY, inImage));
 		}
 	}
-
-	if (!silent) {
-		// Вывод изображения в окне.
-
-		RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
-
-		ImgTxtr.loadFromImage(outImage);
-		ImgSprt.setTexture(ImgTxtr, true);
-
-		out_window.draw(ImgSprt);
-		out_window.display();
-
-
-		while (out_window.isOpen())
-		{
-			Event event;
-			while (out_window.pollEvent(event))
-			{
-				if (event.type == Event::Closed) {
-					in_window.close();
-					out_window.close();
-				}
-			}
-			while (in_window.pollEvent(event))
-			{
-				if (event.type == Event::Closed) {
-					in_window.close();
-					out_window.close();
-				}
-			}
-		}
-	}
-
 	outImage.saveToFile(outImagePath);
 }
