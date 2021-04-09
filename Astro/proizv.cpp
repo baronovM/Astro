@@ -73,12 +73,12 @@ Color interpolation(double x, double y, Image image) {
 }
 
 int main(int argc, char** argstr) {
-	setlocale(LC_ALL, "RUS");
+//	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
 	double f;	// Фокусное расстояние, по умолчанию - "чтобы экватор сферы был вписан в наименьший размер изображения".
 
 	string imagePath, outImagePath;
-	bool silent = 0;
+//	cout << "Tralala!\n";
 	if (argc == 1) {
 		cout << "Введите коэффициент k, названия входного и выходного изображений - {k} {Название входного, без пробелов и с расширением} {Название выходного}:\n";
 		cin >> k >> imagePath >> outImagePath;
@@ -87,8 +87,6 @@ int main(int argc, char** argstr) {
 		k = atoi(argstr[1]) / 100.0;
 		imagePath = argstr[2];
 		outImagePath = argstr[3];
-		if (argc == 5)
-			silent = atoi(argstr[4]);
 		cout << argstr[1];
 		cout << k << endl;
 	}
@@ -128,31 +126,24 @@ int main(int argc, char** argstr) {
 		else if (k > 0.0) f = theR * k / tan(k * thetaMax);
 		else f = theR * k / sin(k * thetaMax);
 	}
+ double param[2]={f,k};
 
-	Image outImage;	// Итоговое изображение.
-	outImage.create(imgSize.x, imgSize.y);
+ Image outImage;	// Итоговое изображение.
+ outImage.create(imgSize.x, imgSize.y);
 
-	for (int x = 0; x < imgSize.x; x++) {
-		for (int y = 0; y < imgSize.y; y++) {
-			int xx = x - pivotX;
-			int yy = y - pivotY;
-			double alpha, r, dist = sqrt(xx * xx + yy * yy);
-			alpha = atan2((double)yy, (double)xx);
+ for (int x = 0; x < imgSize.x; x++) {
+  for (int y = 0; y < imgSize.y; y++) {
+   int xx = x - pivotX;
+   int yy = y - pivotY;
+   double r = sqrt(xx * xx + yy * yy),novr;
+   double sinus,cosinus;
 
-			double theta;
-			r = dist;
-			if (k == 0.0) theta = r / f;
-			else if (k < 0.0) theta = asin(r*k/f)/k;
-			else theta = asin(r * k / f) / k;
+   novr=ptgui(r,param);   
+   double sourceX = pivotX+novr*cosinus;
+   double sourceY = pivotY+novr*sinus;
+   if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
+    continue; // Жизнь продолжается!
 
-			double sourceX = pivotX + theta * f * cos(alpha);
-			double sourceY = pivotY + theta * f * sin(alpha);
-
-			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
-				continue;
-
-			/*for (int i = 0; i <= 2; i++)
-				outImage(x, y)[i] = inImage(round(sourceX), round(sourceY))[i];*/
 			outImage.setPixel(x, y, interpolation(sourceX, sourceY, inImage));
 		}
 	}
