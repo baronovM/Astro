@@ -43,7 +43,7 @@ NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
 }
 
-Color interpolation(double x, double y, Image image) {
+Color interpolation(double x, double y, const Image& image) {
 	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
@@ -61,6 +61,29 @@ Color interpolation(double x, double y, Image image) {
 	NumColor r2 = NumColor(image.getPixel(x1, y2)) * (x2 - x) + NumColor(image.getPixel(x2, y2)) * (x - x1);
 	pixel = r1 * ((y2 - y) / (y2 - y1)) + r2 * ((y - y1) / (y2 - y1));
 	return pixel;
+}
+
+Color test_color(255, 0, 255, 255);
+
+// ѕроверить, насколько правильно искривили; изображение передаЄтс€ по константной ссылке
+int test_distorce(const Image& img, int sizex, int sizey) {
+	int sum = 0, cnt = 0;
+	vector<int> coords;
+	for (int x = 0; x < sizex; x++) {
+		for (int y = 0; y < sizey; y++) {
+			if (img.getPixel(x, y) == test_color) {
+				++cnt;
+				sum += y;
+				coords.emplace_back(y);
+			}
+		}
+	}
+	float average = (float)sum / (float)cnt;
+	float ans = 0;
+	for (int i : coords) {
+		ans += abs((float)i - average);
+	}
+	return ans;
 }
 
 int main(int argc, char** argstr) {
