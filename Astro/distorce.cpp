@@ -71,7 +71,10 @@ int test_distorce(const Image& img, int sizex, int sizey) {
 	vector<int> coords;
 	for (int x = 0; x < sizex; x++) {
 		for (int y = 0; y < sizey; y++) {
-			if (img.getPixel(x, y) == test_color) {
+			int r = abs(img.getPixel(x, y).r - test_color.r);
+			int g = abs(img.getPixel(x, y).g - test_color.b);
+			int b = abs(img.getPixel(x, y).b - test_color.b);
+			if (r + g + b < 30) {
 				++cnt;
 				sum += y;
 				coords.emplace_back(y);
