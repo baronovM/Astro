@@ -10,6 +10,8 @@ using namespace sf;
 
 #define guide "Используйте \"Reverse_Fisheye_Project.exe <k> [f] <image_path>\".\n"
 
+inline double sqr(double x) { return x * x; }
+
 class NumColor : public Color {
 public:
 	NumColor();
@@ -66,9 +68,9 @@ Color interpolation(double x, double y, const Image& image) {
 Color test_color(255, 0, 255, 255);
 
 // Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
-int test_distorce(const Image& img, int sizex, int sizey) {
-	int sum = 0, cnt = 0;
-	vector<int> coords;
+double test_distorce(const Image& img, int sizex, int sizey) {
+	int sumx(0), sumy(0), sumx2(0), sumxy(0), cnt = 0;
+	vector<Vector2u> coords;
 	for (int x = 0; x < sizex; x++) {
 		for (int y = 0; y < sizey; y++) {
 			int r = abs(img.getPixel(x, y).r - test_color.r);
@@ -76,16 +78,41 @@ int test_distorce(const Image& img, int sizex, int sizey) {
 			int b = abs(img.getPixel(x, y).b - test_color.b);
 			if (r + g + b < 30) {
 				++cnt;
-				sum += y;
-				coords.emplace_back(y);
+				sumx += x;
+				sumx2 += x * x;
+				sumxy += x * y;
+				sumy += y;
+				coords.emplace_back(x, y);
 			}
 		}
 	}
-	float average = (float)sum / (float)cnt;
-	float ans = 0;
-	for (int i : coords) {
-		ans += abs((float)i - average);
+
+	if (cnt < 5) {
+		cerr << "Точек меньше 5";
+		if (cnt == 0) {
+			cerr << "ТОЧЕК НЕТ";
+			return 1e8;
+		}
 	}
+
+	sumx /= cnt;
+	sumy /= cnt;
+	sumx2 /= cnt;
+	sumxy /= cnt;
+
+	if (sumx * sumx == sumx2)
+		if (sumxy == sumx * sumy)
+			return 1e8;
+		return 0;
+
+	double a = double(sumxy - sumx * sumy) / double(sumx2 - sumx * sumx);
+	double b = sumy - a * sumx;
+	double ans(0);
+
+	for (auto i : coords) {
+		ans += sqr(a * i.x + b - i.y);
+	}
+
 	return ans;
 }
 
