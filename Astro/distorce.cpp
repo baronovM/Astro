@@ -159,16 +159,21 @@ int main(int argc, char** argstr) {
 
 	Vector2u imgSize = inImage.getSize();
 
-	// Вывод изображения в окне.
+	Texture ImgTxtr;
+	Sprite ImgSprt;
 	RenderWindow in_window(VideoMode(imgSize.x, imgSize.y), "Source");
 
-	Texture ImgTxtr;
-	ImgTxtr.loadFromImage(inImage);
-	Sprite ImgSprt;
-	ImgSprt.setTexture(ImgTxtr);
-	
-	in_window.draw(ImgSprt);
-	in_window.display();
+	if (!silent) {
+		// Вывод изображения в окне.
+
+		ImgTxtr.loadFromImage(inImage);
+		ImgSprt.setTexture(ImgTxtr);
+
+		in_window.draw(ImgSprt);
+		in_window.display();
+	}
+	else
+		in_window.close();
 
 	int pivotX = imgSize.x / 2;
 	int pivotY = imgSize.y / 2;
@@ -208,32 +213,34 @@ int main(int argc, char** argstr) {
 		}
 	}
 
-	// Вывод изображения в окне.
+	if (!silent) {
+		// Вывод изображения в окне.
 
-	RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
+		RenderWindow out_window(VideoMode(imgSize.x, imgSize.y), "Result");
 
-	ImgTxtr.loadFromImage(outImage);
-	ImgSprt.setTexture(ImgTxtr, true);
+		ImgTxtr.loadFromImage(outImage);
+		ImgSprt.setTexture(ImgTxtr, true);
 
-	out_window.draw(ImgSprt);
-	out_window.display();
+		out_window.draw(ImgSprt);
+		out_window.display();
 
 
-	while (out_window.isOpen())
-	{
-		Event event;
-		while (out_window.pollEvent(event))
+		while (out_window.isOpen())
 		{
-			if (event.type == Event::Closed) {
-				in_window.close();
-				out_window.close();
+			Event event;
+			while (out_window.pollEvent(event))
+			{
+				if (event.type == Event::Closed) {
+					in_window.close();
+					out_window.close();
+				}
 			}
-		}
-		while (in_window.pollEvent(event))
-		{
-			if (event.type == Event::Closed) {
-				in_window.close();
-				out_window.close();
+			while (in_window.pollEvent(event))
+			{
+				if (event.type == Event::Closed) {
+					in_window.close();
+					out_window.close();
+				}
 			}
 		}
 	}
