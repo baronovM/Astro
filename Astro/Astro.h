@@ -9,6 +9,7 @@ using namespace std;
 using namespace sf;
 
 #define NUMCOEF 3
+#define THRESHOLD 60
 
 inline double sqr(double x) { return x * x; }
 
@@ -27,6 +28,7 @@ public:
 class PlanImage : public Image {
 public:
 	int pivotX, pivotY, theR;
+	PlanImage();
 	PlanImage(string filePath);
 
 	PlanImage(Vector2u si);

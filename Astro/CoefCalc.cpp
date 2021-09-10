@@ -25,30 +25,29 @@ int main(int argc, char** argstr) {
 	PlanImage inImage(imagePath);
 	Color test_color(255, 0, 255, 255);
 
-	double test_temp;
+	//double test_temp;
 
 	double car[NUMCOEF];
-	double best[NUMCOEF] = { 1., 1., 1. };
+	double best[NUMCOEF];
 	double mn = 1e20, cur;
-	for (car[0] = -100.; car[0] < 100.; car[0] += 20.) {
-		for (car[1] = -100.; car[1] < 100.; car[1] += 20.) {
-			for (car[2] = -100.; car[2] < 100.; car[2] += 20.) {
-				//cout << "-";
+	for (car[0] = -10.; car[0] < 10.; car[0] += 1.) {
+		for (car[1] = -10.; car[1] < 10.; car[1] += 1.) {
+			for (car[2] = -10.; car[2] < 10.; car[2] += 1.) {
 				//test_temp = f * (car[0] * binpow(M_PI / 2, 6) + car[1] * binpow(M_PI / 2, 4) + car[2] * binpow(M_PI / 2, 2));
 				//if (0.2 * inImage.theR < test_temp && inImage.theR < 2 * inImage.theR) {
-					//cout << "+ ";
-					PlanImage* img = distorce(inImage, f, k, car);
-					string temp = "";
-					//cout << car[0];
-					for (int i = 0; i < NUMCOEF; ++i)
-						temp += "_" + to_string(car[i]);
-					//cout << temp;
+				string temp = "";
+				for (int i = 0; i < NUMCOEF; ++i)
+					temp += "_" + to_string(car[i]);
+				PlanImage* img = new PlanImage;
+				if (!img->loadFromFile("out/" + imagePath + "_" + temp + ".png")) {
+					img = distorce(inImage, f, k, car);
 					img->saveToFile("out/" + imagePath + "_" + temp + ".png");
-					cur = test_distorce(*img, test_color);
-					if (cur < mn) {
-						memcpy(best, car, NUMCOEF * sizeof(double));
-						mn = cur;
-					}
+				}
+				cur = test_distorce(*img, test_color);
+				if (cur < mn) {
+					memcpy(best, car, NUMCOEF * sizeof(double));
+					mn = cur;
+				}
 				//}
 				//cout << "\n";
 			}

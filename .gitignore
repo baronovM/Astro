@@ -339,10 +339,9 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-Astro/Astro.vcxproj
-Astro/Astro.vcxproj.filters
-Astro/Astro.vcxproj.user
-Astro.sln
+*.vcxproj
+*.vcxproj.*
+*.sln
 
 *.jpg
 *.exe

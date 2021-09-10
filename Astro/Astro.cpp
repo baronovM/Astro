@@ -1,5 +1,7 @@
 #include "Astro.h"
 
+PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
+
 PlanImage::PlanImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
 		cerr << "ÍÅ ÓÄÀËÎÑÜ Ñ×ÈÒÀÒÜ ÈÇÎÁÐÀÆÅÍÈÅ";
@@ -86,7 +88,7 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 			r = abs(img.getPixel(x, y).r - test_color.r);
 			g = abs(img.getPixel(x, y).g - test_color.g);
 			b = abs(img.getPixel(x, y).b - test_color.b);
-			if (r + g + b < 30) {
+			if (r + g + b < THRESHOLD) {
 				++cnt;
 				sumx += x;
 				sumx2 += x * x;
@@ -97,10 +99,10 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 		}
 	}
 
-	if (cnt < 5) {
-		cerr << "Òî÷åê ìåíüøå 5";
-		if (cnt == 0) {
-			cerr << "ÒÎ×ÅÊ ÍÅÒ";
+	if (cnt < 7) {
+		//cerr << "Òî÷åê ìåíüøå 7\n";
+		if (cnt < 3) {
+			//cerr << "ÒÎ×ÅÊ ÌÅÍÜØÅ 3\n";
 			return 1e20;
 		}
 	}
