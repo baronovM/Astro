@@ -65,57 +65,6 @@ Color interpolation(double x, double y, const Image& image) {
 	return pixel;
 }
 
-Color test_color(255, 0, 255, 255);
-
-// Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
-double test_distorce(const Image& img, int sizex, int sizey) {
-	int sumx(0), sumy(0), sumx2(0), sumxy(0), cnt = 0;
-	vector<Vector2u> coords;
-	for (int x = 0; x < sizex; x++) {
-		for (int y = 0; y < sizey; y++) {
-			int r = abs(img.getPixel(x, y).r - test_color.r);
-			int g = abs(img.getPixel(x, y).g - test_color.g);
-			int b = abs(img.getPixel(x, y).b - test_color.b);
-			if (r + g + b < 30) {
-				++cnt;
-				sumx += x;
-				sumx2 += x * x;
-				sumxy += x * y;
-				sumy += y;
-				coords.emplace_back(x, y);
-			}
-		}
-	}
-
-	if (cnt < 5) {
-		cerr << "Точек меньше 5";
-		if (cnt == 0) {
-			cerr << "ТОЧЕК НЕТ";
-			return 1e8;
-		}
-	}
-
-	sumx /= cnt;
-	sumy /= cnt;
-	sumx2 /= cnt;
-	sumxy /= cnt;
-
-	if (sumx * sumx == sumx2)
-		if (sumxy == sumx * sumy)
-			return 1e8;
-		return 0;
-
-	double a = double(sumxy - sumx * sumy) / double(sumx2 - sumx * sumx);
-	double b = sumy - a * sumx;
-	double ans(0);
-
-	for (auto i : coords) {
-		ans += sqr(a * i.x + b - i.y);
-	}
-
-	return ans;
-}
-
 int main(int argc, char** argstr) {
 	setlocale(LC_ALL, "RUS");
 	double k;	// Интенсивность коррекции.
