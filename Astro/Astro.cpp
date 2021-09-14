@@ -107,19 +107,20 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 		}
 	}
 
-	sumx /= cnt; sumy /= cnt; sumx2 /= cnt; sumxy /= cnt;
+	//sumx /= cnt; sumy /= cnt; sumx2 /= cnt; sumxy /= cnt;
 
-	if (sumx * sumx == sumx2)
-		if (sumxy == sumx * sumy)
-			return 1e8;
+	if (sumx * sumx / cnt == sumx2) {
+		if (sumxy == sumx * sumy / cnt)
+			return 0;
+		return 1e8;
+	}
 
-	double a = double(sumxy - sumx * sumy) / double(sumx2 - sumx * sumx);
-	double b_ = sumy - a * sumx;
+	double a = (double(sumxy) - double(sumx) * sumy / cnt) / (double(sumx2) - double(sumx) * sumx / cnt);
+	double b_ = double(sumy - a * sumx) / cnt;
 	double ans = 0;
 
-	//printf("%lf %lf %d %d %d %d\n", a, b_, sumx, sumy, sumx2, sumy);
+	//printf("\na: %lf, b: %lf\n", a, b_);
 	for (auto i : coords) {
-		//cout << i.x << i.y;
 		ans += sqr(a * i.x + b_ - i.y);
 	}
 
@@ -146,7 +147,7 @@ PlanImage* distorce(const PlanImage& inImage, double f, double k, double coef[NU
 		for (int y = 0; y < imgSize.y; y++) {
 			xx = x - inImage.pivotX;
 			yy = y - inImage.pivotY;
-			alpha, r, dist = sqrt(xx * xx + yy * yy);
+			dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
 			phi = dist / f;

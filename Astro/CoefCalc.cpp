@@ -1,4 +1,5 @@
 #include "Astro.h"
+#include <filesystem>
 
 int main(int argc, char** argstr) {
 	setlocale(LC_ALL, "RUS");
@@ -39,9 +40,12 @@ int main(int argc, char** argstr) {
 				for (int i = 0; i < NUMCOEF; ++i)
 					temp += "_" + to_string(car[i]);
 				PlanImage* img = new PlanImage;
-				if (!img->loadFromFile("out/" + imagePath + "_" + temp + ".png")) {
+				if (!filesystem::exists("out/" + imagePath + "_" + temp + ".png")) {
 					img = distorce(inImage, f, k, car);
 					img->saveToFile("out/" + imagePath + "_" + temp + ".png");
+				}
+				else {
+					img->loadFromFile("out/" + imagePath + "_" + temp + ".png");
 				}
 				cur = test_distorce(*img, test_color);
 				if (cur < mn) {
