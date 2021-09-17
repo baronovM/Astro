@@ -99,12 +99,9 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 		}
 	}
 
-	if (cnt < 7) {
-		//cerr << "Точек меньше 7\n";
-		if (cnt < 3) {
-			//cerr << "ТОЧЕК МЕНЬШЕ 3\n";
-			return 1e20;
-		}
+	if (cnt < 3) {
+		//cerr << "ТОЧЕК МЕНЬШЕ 3\n";
+		return 1e20;
 	}
 
 	//sumx /= cnt; sumy /= cnt; sumx2 /= cnt; sumxy /= cnt;
@@ -119,7 +116,7 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	double b_ = double(sumy - a * sumx) / cnt;
 	double ans = 0;
 
-	//printf("\na: %lf, b: %lf\n", a, b_);
+	//printf("\na: %lf, b: %lf, cnt: %d\n", a, b_, cnt);
 	for (auto i : coords) {
 		ans += sqr(a * i.x + b_ - i.y);
 	}
@@ -127,7 +124,40 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	return ans / cnt;
 }
 
-PlanImage* distorce(const PlanImage& inImage, double f, double k, double coef[NUMCOEF]) {
+PlanImage* distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
+
+	Vector2u imgSize = inImage.getSize();
+
+	double theta = M_PI / 4;
+
+	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
+
+	int xx, yy;
+	double alpha, r, dist, sourceX, sourceY;
+
+	for (int x = 0; x < imgSize.x; x++) {
+		for (int y = 0; y < imgSize.y; y++) {
+			xx = x - inImage.pivotX;
+			yy = y - inImage.pivotY;
+			dist = sqrt(xx * xx + yy * yy);
+			alpha = atan2((double)yy, (double)xx);
+
+			r = coef[0] * binpow(dist, 3) + coef[1] * dist * dist + coef[2] * dist;
+
+			sourceX = inImage.pivotX + r * cos(alpha);
+			sourceY = inImage.pivotY + r * sin(alpha);
+
+			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
+				continue;
+
+			outImage->setPixel(x, y, interpolation(sourceX, sourceY, inImage));
+		}
+	}
+
+	return outImage;
+}
+
+PlanImage* distorce_dirch(const PlanImage& inImage, double f, double k) {
 
 	Vector2u imgSize = inImage.getSize();
 
@@ -141,20 +171,22 @@ PlanImage* distorce(const PlanImage& inImage, double f, double k, double coef[NU
 	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
-	double alpha, r, dist, phi, sourceX, sourceY;
+	double alpha, r, dist, sourceX, sourceY;
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
-			xx = x - inImage.pivotX;
-			yy = y - inImage.pivotY;
-			dist = sqrt(xx * xx + yy * yy);
+			int xx = x - inImage.pivotX;
+			int yy = y - inImage.pivotY;
+			double alpha, r, dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
-			phi = dist / f;
-			r = f * (coef[0] * binpow(phi, 6) + coef[1] * binpow(phi, 4) + coef[2] * binpow(phi, 2));
+			double phi = dist / f;
+			if (k == 0.0) r = f * phi;
+			else if (k < 0.0) r = f * sin(phi * k) / k;
+			else r = f * tan(phi * k) / k;
 
-			sourceX = inImage.pivotX + r * cos(alpha);
-			sourceY = inImage.pivotY + r * sin(alpha);
+			double sourceX = inImage.pivotX + r * cos(alpha);
+			double sourceY = inImage.pivotY + r * sin(alpha);
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
@@ -162,6 +194,5 @@ PlanImage* distorce(const PlanImage& inImage, double f, double k, double coef[NU
 			outImage->setPixel(x, y, interpolation(sourceX, sourceY, inImage));
 		}
 	}
-
 	return outImage;
 }

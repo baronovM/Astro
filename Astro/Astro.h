@@ -37,4 +37,13 @@ public:
 double binpow(double x, int n);
 Color interpolation(double x, double y, const PlanImage& image);
 double test_distorce(const PlanImage& img, const Color& test_color);
-PlanImage* distorce(const PlanImage& inImage, double f, double k, double coef[NUMCOEF]);
+PlanImage* distorce(const PlanImage& inImage, double coef[NUMCOEF]);
+PlanImage* distorce_dirch(const PlanImage& inImage, double f, double k);
+
+
+
+
+
+
+
+
