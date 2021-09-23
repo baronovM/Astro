@@ -28,9 +28,8 @@ int main(int argc, char** argstr) {
 				string temp = "";
 				for (int i = 0; i < NUMCOEF; ++i)
 					temp += "_" + to_string(car[i]);
-				PlanImage* img = new PlanImage;
+				unique_ptr<PlanImage> img;
 				if (!filesystem::exists("out/" + imagePath + "_" + temp + ".png")) {
-					delete img;
 					img = distorce(inImage, car);
 					img->saveToFile("out/" + imagePath + "_" + temp + ".png");
 				}
@@ -42,7 +41,6 @@ int main(int argc, char** argstr) {
 					memcpy(best, car, NUMCOEF * sizeof(double));
 					mn = cur;
 				}
-				delete img;
 				//}
 				//cout << "\n";
 			}
@@ -54,10 +52,8 @@ int main(int argc, char** argstr) {
 	}
 	fout.close();
 
-	PlanImage* result = distorce(inImage, best);
+	unique_ptr<PlanImage> result = distorce(inImage, best);
 	result->saveToFile(outImagePath);
-	delete result;
 
-	system("pause");
 	return 0;
 }

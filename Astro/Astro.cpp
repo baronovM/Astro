@@ -4,9 +4,8 @@ PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
 
 PlanImage::PlanImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
-		cerr << "НЕ УДАЛОСЬ СЧИТАТЬ ИЗОБРАЖЕНИЕ";
-		system("pause");
-		throw;
+		//cerr << "НЕ УДАЛОСЬ СЧИТАТЬ ИЗОБРАЖЕНИЕ " << filePath << endl;
+		throw 1;
 	}
 	else {
 		pivotX = getSize().x / 2;
@@ -124,13 +123,13 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	return ans / cnt;
 }
 
-PlanImage* distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
+unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 
 	Vector2u imgSize = inImage.getSize();
 
 	double theta = M_PI / 4;
 
-	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
+	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
 	double alpha, r, dist, sourceX, sourceY;
@@ -157,7 +156,7 @@ PlanImage* distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 	return outImage;
 }
 
-PlanImage* distorce_dirch(const PlanImage& inImage, double f, double k) {
+unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double k) {
 
 	Vector2u imgSize = inImage.getSize();
 
@@ -168,7 +167,7 @@ PlanImage* distorce_dirch(const PlanImage& inImage, double f, double k) {
 		else if (k > 0.0) f = inImage.theR * k / tan(k * theta);
 		else { f = inImage.theR * k / sin(k * theta); if (k < -1) f *= fabs(k); }
 	}
-	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
+	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
 	double alpha, r, dist, sourceX, sourceY;
