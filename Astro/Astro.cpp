@@ -4,8 +4,7 @@ PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
 
 PlanImage::PlanImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
-		//cerr << "ÍÅ ÓÄÀËÎÑÜ Ñ×ÈÒÀÒÜ ÈÇÎÁÐÀÆÅÍÈÅ " << filePath << endl;
-		throw 1;
+		throw "Íå óäàëîñü çàãðóçèòü èçîáðàæåíèå èç ôàéëà " + filePath;
 	}
 	else {
 		pivotX = getSize().x / 2;

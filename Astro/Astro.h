@@ -11,6 +11,8 @@ using namespace sf;
 
 #define NUMCOEF 3
 #define THRESHOLD 60
+#define LOWER_LIMIT 0.2
+#define UPPER_LIMIT 2
 
 inline double sqr(double x) { return x * x; }
 

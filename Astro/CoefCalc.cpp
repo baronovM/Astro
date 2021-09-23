@@ -1,5 +1,6 @@
 #include "Astro.h"
 #include <filesystem>
+#include <sstream>
 
 int main(int argc, char** argstr) {
 	setlocale(LC_ALL, "RUS");
@@ -15,7 +16,7 @@ int main(int argc, char** argstr) {
 	PlanImage inImage(imagePath);
 	Color test_color(255, 0, 255, 255);
 
-	//double test_temp;
+	double test_r;
 
 	double car[NUMCOEF];
 	double best[NUMCOEF];
@@ -23,26 +24,25 @@ int main(int argc, char** argstr) {
 	for (car[0] = -1.; car[0] < 1.; car[0] += 0.1) {
 		for (car[1] = -1.; car[1] < 1.; car[1] += 0.1) {
 			for (car[2] = -1.; car[2] < 1.; car[2] += 0.1) {
-				//test_temp = f * (car[0] * binpow(M_PI / 2, 6) + car[1] * binpow(M_PI / 2, 4) + car[2] * binpow(M_PI / 2, 2));
-				//if (0.2 * inImage.theR < test_temp && inImage.theR < 2 * inImage.theR) {
-				string temp = "";
-				for (int i = 0; i < NUMCOEF; ++i)
-					temp += "_" + to_string(car[i]);
-				unique_ptr<PlanImage> img;
-				if (!filesystem::exists("out/" + imagePath + "_" + temp + ".png")) {
-					img = distorce(inImage, car);
-					img->saveToFile("out/" + imagePath + "_" + temp + ".png");
+				test_r = car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR;
+				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * double(inImage.theR)) {
+					ostringstream temp;
+					for (int i = 0; i < NUMCOEF; ++i)
+						temp << "__" << car[i];
+					if (!filesystem::exists("out/" + imagePath + temp.str() + ".png")) {
+						unique_ptr<PlanImage> img = distorce(inImage, car);
+						img->saveToFile("out/" + imagePath + temp.str() + ".png");
+						cur = test_distorce(*img, test_color);
+					}
+					else {
+						unique_ptr<PlanImage> img = make_unique<PlanImage>("out/" + imagePath + temp.str() + ".png");
+						cur = test_distorce(*img, test_color);
+					}
+					if (cur < mn) {
+						memcpy(best, car, NUMCOEF * sizeof(double));
+						mn = cur;
+					}
 				}
-				else {
-					img->loadFromFile("out/" + imagePath + "_" + temp + ".png");
-				}
-				cur = test_distorce(*img, test_color);
-				if (cur < mn) {
-					memcpy(best, car, NUMCOEF * sizeof(double));
-					mn = cur;
-				}
-				//}
-				//cout << "\n";
 			}
 		}
 	}
