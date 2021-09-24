@@ -35,6 +35,12 @@ NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
 }
 
+// Returns absolut value!
+Uint8 NumColor::operator-(const NumColor& other) const
+{
+	return abs(r - other.r) + abs(g - other.g) + abs(b - other.b) + abs(a - other.a);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 double binpow(double x, int n) {
@@ -68,14 +74,11 @@ Color interpolation(double x, double y, const PlanImage& image) {
 
 // ѕроверить, насколько правильно искривили; изображение передаЄтс€ по константной ссылке
 double test_distorce(const PlanImage& img, const Color& test_color) {
-	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0, r, g, b;
+	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0;
 	vector<Vector2u> coords;
 	for (int x = 0; x < img.getSize().x; x++) {
 		for (int y = 0; y < img.getSize().y; y++) {
-			r = abs(img.getPixel(x, y).r - test_color.r);
-			g = abs(img.getPixel(x, y).g - test_color.g);
-			b = abs(img.getPixel(x, y).b - test_color.b);
-			if (r + g + b < THRESHOLD) {
+			if (NumColor(img.getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
 				++cnt;
 				sumx += x;
 				sumx2 += x * x;
@@ -181,16 +184,13 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 
 bool test_ends(const PlanImage& image, Color test_color){
 	
-	int xx, yy, r, g, b, cnt = 0;
+	int xx, yy, cnt = 0;
 	double alphaLast, alphaCur;
 	for (int x = 0; x < image.getSize().x; ++x){
 		for (int y = 0; y < image.getSize().y; ++y) {
 			xx =x - image.pivotX;
 			yy = y - image.pivotY;
-			r = abs(image.getPixel(x, y).r - test_color.r);
-			g = abs(image.getPixel(x, y).g - test_color.g);
-			b = abs(image.getPixel(x, y).b - test_color.b);
-			if (r + g + b < THRESHOLD) {
+			if (NumColor(image.getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
 				if (cnt == 0) {
 					alphaLast = atan2((double)yy, (double)xx);
 				}

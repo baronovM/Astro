@@ -25,6 +25,7 @@ public:
 
 	NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1);
 	NumColor operator*(const double& k) const;
+	Uint8 operator-(const NumColor& other) const;
 };
 
 
