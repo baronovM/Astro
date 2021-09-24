@@ -25,7 +25,7 @@ int main(int argc, char** argstr) {
 		for (car[1] = -1.; car[1] < 1.; car[1] += 0.1) {
 			for (car[2] = -1.; car[2] < 1.; car[2] += 0.1) {
 				test_r = car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR;
-				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * double(inImage.theR)) {
+				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR) {
 					ostringstream temp;
 					for (int i = 0; i < NUMCOEF; ++i)
 						temp << "__" << car[i];

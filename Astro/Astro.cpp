@@ -24,23 +24,12 @@ PlanImage::PlanImage(Vector2u si) : Image() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-NumColor::NumColor() {
-	r = 0; g = 0; b = 0; a = 0;
-}
+NumColor::NumColor() : Color() {}
 
-NumColor::NumColor(Color c) {
-	r = c.r;
-	g = c.g;
-	b = c.b;
-	a = c.a;
-}
+NumColor::NumColor(Color c) : Color(c) {}
 
-NumColor::NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1) {
-	r = r1;
-	g = g1;
-	b = b1;
-	a = a1;
-}
+NumColor::NumColor(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
+	: Color(red, green, blue, alpha) {}
 
 NumColor NumColor::operator*(const double& k) const {
 	return NumColor(r * k, g * k, b * k, a);
@@ -79,7 +68,7 @@ Color interpolation(double x, double y, const PlanImage& image) {
 
 // Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
 double test_distorce(const PlanImage& img, const Color& test_color) {
-	int sumx(0), sumy(0), sumx2(0), sumxy(0), cnt = 0, r, g, b;
+	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0, r, g, b;
 	vector<Vector2u> coords;
 	for (int x = 0; x < img.getSize().x; x++) {
 		for (int y = 0; y < img.getSize().y; y++) {
@@ -97,12 +86,8 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 		}
 	}
 
-	if (cnt < 3) {
-		//cerr << "ТОЧЕК МЕНЬШЕ 3\n";
+	if (cnt < 3)
 		return 1e20;
-	}
-
-	//sumx /= cnt; sumy /= cnt; sumx2 /= cnt; sumxy /= cnt;
 
 	if (sumx * sumx / cnt == sumx2) {
 		if (sumxy == sumx * sumy / cnt)
@@ -114,7 +99,6 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	double b_ = double(sumy - a * sumx) / cnt;
 	double ans = 0;
 
-	//printf("\na: %lf, b: %lf, cnt: %d\n", a, b_, cnt);
 	for (auto i : coords) {
 		ans += sqr(a * i.x + b_ - i.y);
 	}
@@ -169,7 +153,7 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
-	double alpha, r, dist, sourceX, sourceY;
+	double alpha, r, dist, sourceX, sourceY, phi;
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
@@ -178,7 +162,7 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 			dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
-			double phi = dist / f;
+			phi = dist / f;
 			if (k == 0.0) r = f * phi;
 			else if (k < 0.0) r = f * sin(phi * k) / k;
 			else r = f * tan(phi * k) / k;
@@ -195,7 +179,7 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 	return outImage;
 }
 
-bool test_ends(const PlanImage& image,Color test_color){
+bool test_ends(const PlanImage& image, Color test_color){
 	
 	int xx, yy, r, g, b, cnt = 0;
 	double alphaLast, alphaCur;
