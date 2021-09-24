@@ -173,9 +173,9 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
-			int xx = x - inImage.pivotX;
-			int yy = y - inImage.pivotY;
-			double alpha, r, dist = sqrt(xx * xx + yy * yy);
+			xx = x - inImage.pivotX;
+			yy = y - inImage.pivotY;
+			dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
 			double phi = dist / f;
@@ -193,4 +193,29 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 		}
 	}
 	return outImage;
+}
+
+bool test_ends(const PlanImage& image,Color test_color){
+	
+	int xx, yy, r, g, b, cnt = 0;
+	double alphaLast, alphaCur;
+	for (int x = 0; x < image.getSize().x; ++x){
+		for (int y = 0; y < image.getSize().y; ++y) {
+			xx =x - image.pivotX;
+			yy = y - image.pivotY;
+			r = abs(image.getPixel(x, y).r - test_color.r);
+			g = abs(image.getPixel(x, y).g - test_color.g);
+			b = abs(image.getPixel(x, y).b - test_color.b);
+			if (r + g + b < THRESHOLD) {
+				if (cnt == 0) {
+					alphaLast = atan2((double)yy, (double)xx);
+				}
+				else if (cnt == 1 && ) {
+					alphaCur = atan2((double)yy, (double)xx);
+				}
+				
+				
+			}
+		}
+	}
 }
