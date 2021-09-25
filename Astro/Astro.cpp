@@ -38,7 +38,7 @@ NumColor NumColor::operator*(const double& k) const {
 // Returns absolut value!
 Uint8 NumColor::operator-(const NumColor& other) const
 {
-	return abs(r - other.r) + abs(g - other.g) + abs(b - other.b) + abs(a - other.a);
+	return abs(r - other.r) + abs(g - other.g) + abs(b - other.b);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -184,22 +184,25 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 
 bool test_ends(const PlanImage& image, Color test_color){
 	
-	int xx, yy, cnt = 0;
-	double alphaLast, alphaCur;
+	int xx, yy;
+	bool shit = false;
+	double alpha;
 	for (int x = 0; x < image.getSize().x; ++x){
 		for (int y = 0; y < image.getSize().y; ++y) {
-			xx =x - image.pivotX;
+			xx = x - image.pivotX;
 			yy = y - image.pivotY;
 			if (NumColor(image.getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
-				if (cnt == 0) {
-					alphaLast = atan2((double)yy, (double)xx);
+				if (!shit) {
+					alpha = atan2((double)yy, (double)xx);
+					shit = true;
 				}
-				else if (cnt == 1 && ) {
-					alphaCur = atan2((double)yy, (double)xx);
+				else if (shit && ((int((M_PI * 2 + alpha - atan2((double)yy, (double)xx)) * 1000) % int(M_PI * 2000)) > MIN_DIFF_ANGLE*1000)) {
+					return true;
 				}
-				
-				
 			}
 		}
 	}
+	if (!shit)
+		return false;
+	return false;
 }
