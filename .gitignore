@@ -343,6 +343,4 @@ healthchecksdb
 *.vcxproj.*
 *.sln
 
-*.jpg
-*.exe
 *.dll

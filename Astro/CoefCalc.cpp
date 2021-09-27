@@ -19,12 +19,12 @@ int main(int argc, char** argstr) {
 
 	double test_r;
 
-	double car[NUMCOEF];
+	double car[NUMCOEF];	// coefficient array
 	double best[NUMCOEF];
 	double mn = 1e20, cur;
-	for (car[0] = -20.; car[0] < 20.; car[0] += 0.1) {
-		for (car[1] = -20.; car[1] < 20.; car[1] += 0.1) {
-			for (car[2] = -20.; car[2] < 20.; car[2] += 0.1) {
+	for (car[0] = -5.; car[0] < 5.; car[0] += 0.02) {
+		for (car[1] = -10.; car[1] < 10.; car[1] += 0.05) {
+			for (car[2] = -10.; car[2] < 10.; car[2] += 0.05) {
 				test_r = car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR;
 				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR) {
 					ostringstream temp;
@@ -40,7 +40,7 @@ int main(int argc, char** argstr) {
 						img = make_unique<PlanImage>("out/" + imagePath + temp.str() + ".png");
 						cur = test_distorce(*img, test_color);
 					}
-					if (cur < mn && test_ends(*img, test_color_2)) {
+					if (cur < mn) {
 						memcpy(best, car, NUMCOEF * sizeof(double));
 						mn = cur;
 					}
@@ -56,10 +56,10 @@ int main(int argc, char** argstr) {
 
 	unique_ptr<PlanImage> result = distorce(inImage, best);
 	result->saveToFile(outImagePath);
-	if (test_ends(*result, test_color_2))
+	/*if (test_ends(*result, test_color_2))
 		cout << "YEEES";
 	else
-		cout << "NO";
+		cout << "NO";*/
 
 	return 0;
 }

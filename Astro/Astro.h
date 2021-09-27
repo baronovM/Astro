@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <limits>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "SFML/Graphics.hpp"
@@ -11,8 +12,8 @@ using namespace sf;
 
 #define NUMCOEF 3
 #define THRESHOLD 60
-#define LOWER_LIMIT 0.2
-#define UPPER_LIMIT 2.0
+#define LOWER_LIMIT 0.5
+#define UPPER_LIMIT 1.2
 #define	MIN_DIFF_ANGLE M_PI / 12
 
 inline double sqr(double x) { return x * x; }

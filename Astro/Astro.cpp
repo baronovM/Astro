@@ -45,7 +45,7 @@ Uint8 NumColor::operator-(const NumColor& other) const
 
 double binpow(double x, int n) {
 	if (n == 0)
-		return x;
+		return 1;
 	if (n % 2)
 		return binpow(x, n - 1) * x;
 	else
@@ -90,12 +90,12 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	}
 
 	if (cnt < 3)
-		return 1e20;
+		return numeric_limits<double>::max();
 
 	if (sumx * sumx / cnt == sumx2) {
 		if (sumxy == sumx * sumy / cnt)
 			return 0;
-		return 1e8;
+		return numeric_limits<double>::max();
 	}
 
 	double a = (double(sumxy) - double(sumx) * sumy / cnt) / (double(sumx2) - double(sumx) * sumx / cnt);
@@ -128,6 +128,7 @@ unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 			alpha = atan2((double)yy, (double)xx);
 
 			r = coef[0] * binpow(dist, 3) + coef[1] * dist * dist + coef[2] * dist;
+			//car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR
 
 			sourceX = inImage.pivotX + r * cos(alpha);
 			sourceY = inImage.pivotY + r * sin(alpha);
@@ -196,7 +197,7 @@ bool test_ends(const PlanImage& image, Color test_color){
 					alpha = atan2((double)yy, (double)xx);
 					bad = true;
 				}
-				else if (bad && ((int((M_PI * 2 + alpha - atan2((double)yy, (double)xx)) * 1000) % int(M_PI * 2000)) > MIN_DIFF_ANGLE*1000)) {
+				else if (bad && abs(alpha - atan2((double)yy, (double)xx)) > MIN_DIFF_ANGLE) {
 					return true;
 				}
 			}

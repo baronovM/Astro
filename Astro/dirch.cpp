@@ -25,9 +25,8 @@ int main(int argc, char** argstr) {
 
 	PlanImage inImage(imagePath);
 
-	PlanImage* outImage = distorce_dirch(inImage, f, k);
+	unique_ptr<PlanImage> outImage = distorce_dirch(inImage, f, k);
 	outImage->saveToFile(outImagePath);
-	delete outImage;
 
 	return 0;
 }
