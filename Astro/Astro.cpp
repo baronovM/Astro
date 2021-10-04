@@ -9,7 +9,7 @@ PlanImage::PlanImage(string filePath) : Image() {
 	else {
 		pivotX = getSize().x / 2;
 		pivotY = getSize().y / 2;
-		theR = min(pivotX, pivotY);
+		theR = sqrt(pivotX * pivotX + pivotY * pivotX);
 	}
 }
 
@@ -17,7 +17,7 @@ PlanImage::PlanImage(Vector2u si) : Image() {
 	create(si.x, si.y);
 	pivotX = si.x / 2;
 	pivotY = si.y / 2;
-	theR = min(pivotX, pivotY);
+	theR = sqrt(pivotX * pivotX + pivotY * pivotX);
 }
 
 
@@ -41,7 +41,7 @@ Uint8 NumColor::operator-(const NumColor& other) const
 	return abs(r - other.r) + abs(g - other.g) + abs(b - other.b);
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
 
 double binpow(double x, int n) {
 	if (n == 0)
@@ -51,6 +51,8 @@ double binpow(double x, int n) {
 	else
 		return sqr(binpow(x, n / 2));
 }
+
+//-----------------------------------------------------------------------------
 
 Color interpolation(double x, double y, const PlanImage& image) {
 	NumColor pixel;
@@ -71,6 +73,8 @@ Color interpolation(double x, double y, const PlanImage& image) {
 	pixel = r1 * ((y2 - y) / (y2 - y1)) + r2 * ((y - y1) / (y2 - y1));
 	return pixel;
 }
+
+//-----------------------------------------------------------------------------
 
 // ѕроверить, насколько правильно искривили; изображение передаЄтс€ по константной ссылке
 double test_distorce(const PlanImage& img, const Color& test_color) {
@@ -109,6 +113,39 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 	return ans / cnt;
 }
 
+//-----------------------------------------------------------------------------
+
+double fun(double r, double c[NUMCOEF]) {
+	return c[2] * binpow(r, 3) + c[1] * r * r + c[0] * r;
+}
+
+bool test_sign(double r_max, double c[NUMCOEF])
+{
+	if (c[2] == 0) {
+		if (c[1] == 0)
+			return c[0] > 0;
+		double d = -c[0] / (2 * c[1]);
+		return c[0] > 0 && (d <= 0 || d >= r_max);
+	}
+	double D4 = c[1] * c[1] - 3 * c[0] * c[2];
+	if (D4 > 0) {
+		double r1, r2;
+		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
+		r2 = (-c[1] + sqrt(D4)) / (3 * c[2]);
+		if (r1 > r2)
+			swap(r1, r2);
+		if (r1 > r_max || r2 < 0)
+			return c[0] > 0;
+		if (r1 > 0 || r2 < r_max)
+			return false;
+		return c[0] > 0;
+	}
+	else
+		return c[2] > 0;
+}
+
+//-----------------------------------------------------------------------------
+
 unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 
 	Vector2u imgSize = inImage.getSize();
@@ -127,7 +164,7 @@ unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 			dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
-			r = coef[0] * binpow(dist, 3) + coef[1] * dist * dist + coef[2] * dist;
+			r = fun(dist, coef);
 			//car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR
 
 			sourceX = inImage.pivotX + r * cos(alpha);

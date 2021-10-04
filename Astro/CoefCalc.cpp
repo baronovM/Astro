@@ -19,20 +19,21 @@ int main(int argc, char** argstr) {
 
 	double test_r;
 
-	double car[NUMCOEF];	// coefficient array
+	double coef[NUMCOEF];	// coefficient array
 	double best[NUMCOEF];
 	double mn = 1e20, cur;
-	for (car[0] = -5.; car[0] < 5.; car[0] += 0.02) {
-		for (car[1] = -10.; car[1] < 10.; car[1] += 0.05) {
-			for (car[2] = -10.; car[2] < 10.; car[2] += 0.05) {
-				test_r = car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR;
-				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR) {
+	for (coef[0] = -10.; coef[0] < 10.; coef[0] += 0.05) {
+		for (coef[1] = -10.; coef[1] < 10.; coef[1] += 0.05) {
+			for (coef[2] = -5.; coef[2] < 5.; coef[2] += 0.02) {
+				test_r = fun(inImage.theR, coef);
+				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR
+				&& test_sign(inImage.theR, coef)) {
 					ostringstream temp;
 					for (int i = 0; i < NUMCOEF; ++i)
-						temp << "__" << car[i];
+						temp << "__" << coef[i];
 					unique_ptr<PlanImage> img;
 					if (!filesystem::exists("out/" + imagePath + temp.str() + ".png")) {
-						img = distorce(inImage, car);
+						img = distorce(inImage, coef);
 						img->saveToFile("out/" + imagePath + temp.str() + ".png");
 						cur = test_distorce(*img, test_color);
 					}
@@ -41,7 +42,7 @@ int main(int argc, char** argstr) {
 						cur = test_distorce(*img, test_color);
 					}
 					if (cur < mn) {
-						memcpy(best, car, NUMCOEF * sizeof(double));
+						memcpy(best, coef, NUMCOEF * sizeof(double));
 						mn = cur;
 					}
 				}
