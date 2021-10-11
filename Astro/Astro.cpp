@@ -127,7 +127,7 @@ bool test_sign(double r_max, double c[NUMCOEF])
 		double d = -c[0] / (2 * c[1]);
 		return c[0] > 0 && (d <= 0 || d >= r_max);
 	}
-	double D4 = c[1] * c[1] - 3 * c[0] * c[2];
+	double D4 = c[1] * c[1] - 3.0 * c[0] * c[2];
 	if (D4 > 0) {
 		double r1, r2;
 		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
