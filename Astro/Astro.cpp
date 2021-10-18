@@ -1,15 +1,15 @@
-#include "Astro.h"
+п»ї#include "Astro.h"
 
 PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
 
 PlanImage::PlanImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
-		throw "Не удалось загрузить изображение из файла " + filePath;
+		throw "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РёР· С„Р°Р№Р»Р° " + filePath;
 	}
 	else {
 		pivotX = getSize().x / 2;
 		pivotY = getSize().y / 2;
-		theR = sqrt(pivotX * pivotX + pivotY * pivotX);
+		theR = hypot(pivotX, pivotY);
 	}
 }
 
@@ -17,7 +17,7 @@ PlanImage::PlanImage(Vector2u si) : Image() {
 	create(si.x, si.y);
 	pivotX = si.x / 2;
 	pivotY = si.y / 2;
-	theR = sqrt(pivotX * pivotX + pivotY * pivotX);
+	theR = hypot(pivotX, pivotY);
 }
 
 
@@ -42,6 +42,13 @@ Uint8 NumColor::operator-(const NumColor& other) const
 }
 
 //-----------------------------------------------------------------------------
+
+void roundArr(double c[NUMCOEF])
+{
+	for (int i = 0; i < NUMCOEF; ++i)
+		c[i] = round(c[i] * 1000.) / 1000.;
+
+}
 
 double binpow(double x, int n) {
 	if (n == 0)
@@ -76,7 +83,7 @@ Color interpolation(double x, double y, const PlanImage& image) {
 
 //-----------------------------------------------------------------------------
 
-// Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
+// РџСЂРѕРІРµСЂРёС‚СЊ, РЅР°СЃРєРѕР»СЊРєРѕ РїСЂР°РІРёР»СЊРЅРѕ РёСЃРєСЂРёРІРёР»Рё; РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРµСЂРµРґР°С‘С‚СЃСЏ РїРѕ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ СЃСЃС‹Р»РєРµ
 double test_distorce(const PlanImage& img, const Color& test_color) {
 	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0;
 	vector<Vector2u> coords;
@@ -121,7 +128,7 @@ double fun(double r, double c[NUMCOEF]) {
 
 bool test_sign(double r_max, double c[NUMCOEF])
 {
-	if (c[2] == 0) {
+	/*if (c[2] == 0) {
 		if (c[1] == 0)
 			return c[0] > 0;
 		double d = -c[0] / (2 * c[1]);
@@ -141,34 +148,73 @@ bool test_sign(double r_max, double c[NUMCOEF])
 		return c[0] > 0;
 	}
 	else
-		return c[2] > 0;
+		return c[2] > 0;*/
+
+	double r1, r2;
+	if (c[0] < 0) // РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ РїСЂРѕРёР·РІРѕРґРЅРѕР№ РІ РЅСѓР»Рµ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕ, РЅР°РјСЉ РЅРµ РіРѕРґРёС‚СЃСЏ
+		return false;
+	if (c[0] == 0) { // РїСЂРѕС‰Рµ СЂР°СЃСЃРјРѕС‚СЂРµС‚СЊ СЌС‚РѕС‚СЉ СЃР»СѓС‡Р°Р№ СЃРµР№С‡Р°СЃСЉ, С‡С‚РѕР±СЉ РѕРЅСЉ РїРѕС‚РѕРјСЉ РЅРµ РїСѓС‚Р°Р»СЃСЏ РїРѕРґСЉ РЅРѕРіР°РјРё
+		if (c[2] == 0) return c[1] > 0;
+		r1 = -2. * c[1] / (3. * c[2]);
+		if (r1 > 0 && r1 < r_max) return false;
+		if (r1 <= 0) return c[2] > 0;
+		else return c[2] < 0;
+	}
+	if (c[2] == 0) {
+		if (c[1] == 0) return true;
+		r1 = -c[0] / (2 * c[1]);
+		return r1 <= 0 || r1 >= r_max;
+	}
+
+	if (fabs(c[0] * c[2]) < 10000. * DBL_EPSILON * c[1] * c[1]) {
+		r1 = -2. * c[1] / (3. * c[2]);
+		r2 = -c[0] / (2 * c[1]);
+	}
+	else {
+		double D4 = c[1] * c[1] - 3.0 * c[0] * c[2];
+		if (D4 < 0)
+			return true;
+		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
+		r2 = (-c[1] + sqrt(D4)) / (3 * c[2]);
+	}
+	if (r1 > r2)
+		swap(r1, r2);
+	if (r1 >= r_max || r2 < 0)
+		return true;
+	if (r1 > 0 || r2 < r_max)
+		return false;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 
 unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 
+	//for (int i = 0; i < NUMCOEF; ++i)
+		//cout << coef[i] << " ";
+
 	Vector2u imgSize = inImage.getSize();
 
 	double theta = M_PI / 4;
 
-	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
+	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// РС‚РѕРіРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
 
 	int xx, yy;
-	double alpha, r, dist, sourceX, sourceY;
+	double alpha, r, sourceX, sourceY, ratio;
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
 			xx = x - inImage.pivotX;
 			yy = y - inImage.pivotY;
-			dist = sqrt(xx * xx + yy * yy);
-			alpha = atan2((double)yy, (double)xx);
+			r = sqrt(xx * xx + yy * yy);
 
-			r = fun(dist, coef);
-			//car[0] * binpow(inImage.theR, 3) + car[1] * inImage.theR * inImage.theR + car[2] * inImage.theR
+			if (r != 0)
+				ratio = fun(r, coef) / r;
+			else
+				ratio = 0;
 
-			sourceX = inImage.pivotX + r * cos(alpha);
-			sourceY = inImage.pivotY + r * sin(alpha);
+			sourceX = inImage.pivotX + ratio * xx;
+			sourceY = inImage.pivotY + ratio * yy;
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
@@ -191,7 +237,7 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 		else if (k > 0.0) f = inImage.theR * k / tan(k * theta);
 		else { f = inImage.theR * k / sin(k * theta); if (k < -1) f *= fabs(k); }
 	}
-	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
+	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// РС‚РѕРіРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
 
 	int xx, yy;
 	double alpha, r, dist, sourceX, sourceY, phi;
@@ -218,28 +264,4 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 		}
 	}
 	return outImage;
-}
-
-bool test_ends(const PlanImage& image, Color test_color){
-	
-	int xx, yy;
-	bool bad = false;
-	double alpha;
-	for (int x = 0; x < image.getSize().x; ++x){
-		for (int y = 0; y < image.getSize().y; ++y) {
-			xx = x - image.pivotX;
-			yy = y - image.pivotY;
-			if (NumColor(image.getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
-				if (!bad) {
-					alpha = atan2((double)yy, (double)xx);
-					bad = true;
-				}
-				else if (bad && abs(alpha - atan2((double)yy, (double)xx)) > MIN_DIFF_ANGLE) {
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
 }

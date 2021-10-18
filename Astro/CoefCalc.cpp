@@ -3,8 +3,6 @@
 #include <sstream>
 
 int main(int argc, char** argstr) {
-	setlocale(LC_ALL, "RUS");
-
 	string imagePath, outImagePath;
 	if (argc == 3) {
 		imagePath = argstr[1];
@@ -22,9 +20,10 @@ int main(int argc, char** argstr) {
 	double coef[NUMCOEF];	// coefficient array
 	double best[NUMCOEF];
 	double mn = 1e20, cur;
-	for (coef[0] = -10.; coef[0] < 10.; coef[0] += 0.05) {
-		for (coef[1] = -10.; coef[1] < 10.; coef[1] += 0.05) {
-			for (coef[2] = -5.; coef[2] < 5.; coef[2] += 0.02) {
+	for (coef[0] = -5.; coef[0] < 5.; coef[0] += 0.05) {
+		for (coef[1] = -5.; coef[1] < 5.; coef[1] += 0.05) {
+			for (coef[2] = -0.1; coef[2] < 0.1; coef[2] += 0.001) {
+				roundArr(coef);
 				test_r = fun(inImage.theR, coef);
 				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR
 				&& test_sign(inImage.theR, coef)) {
@@ -47,6 +46,9 @@ int main(int argc, char** argstr) {
 					}
 				}
 			}
+			/*for (auto i : coef)
+				cout << i << " ";
+			cout << "\n";*/
 		}
 	}
 	ofstream fout("coef.txt");
@@ -57,10 +59,6 @@ int main(int argc, char** argstr) {
 
 	unique_ptr<PlanImage> result = distorce(inImage, best);
 	result->saveToFile(outImagePath);
-	/*if (test_ends(*result, test_color_2))
-		cout << "YEEES";
-	else
-		cout << "NO";*/
 
 	return 0;
 }
