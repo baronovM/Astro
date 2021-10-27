@@ -11,7 +11,7 @@ using namespace std;
 using namespace sf;
 
 #define NUMCOEF 3
-#define THRESHOLD 60
+#define THRESHOLD 30
 #define LOWER_LIMIT 0.8
 #define UPPER_LIMIT 1.3
 #define	MIN_DIFF_ANGLE M_PI / 12
@@ -34,11 +34,13 @@ public:
 
 class PlanImage : public Image {
 public:
+	vector<vector<double>> precalc;
 	int pivotX, pivotY, theR;
 	PlanImage();
 	PlanImage(string filePath);
 
 	PlanImage(Vector2u si);
+	void initNewR(double coef[NUMCOEF]);
 };
 
 void roundArr(double c[NUMCOEF]);

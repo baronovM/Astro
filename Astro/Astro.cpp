@@ -20,6 +20,25 @@ PlanImage::PlanImage(Vector2u si) : Image() {
 	theR = hypot(pivotX, pivotY);
 }
 
+void PlanImage::initNewR(double coef[NUMCOEF]) {
+	++pivotX;
+	++pivotY;
+	precalc.resize(pivotX);
+	precalc[0].resize(pivotY);
+	precalc[0][0] = 0;
+	for (int i = 1; i < pivotX; ++i) {
+		precalc[i].resize(pivotY);
+		precalc[0][i] = precalc[i][0] = fun(i, coef) / i;
+	}
+	for (int i = 1; i < pivotX; ++i) {
+		for (int j = 1; j <= i; ++j) {
+			precalc[j][i] = precalc[i][j] = fun(hypot(i, j), coef) / hypot(i, j);
+		}
+	}
+	--pivotX;
+	--pivotY;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +65,7 @@ Uint8 NumColor::operator-(const NumColor& other) const
 void roundArr(double c[NUMCOEF])
 {
 	for (int i = 0; i < NUMCOEF; ++i)
-		c[i] = round(c[i] * 1000.) / 1000.;
+		c[i] = round(c[i] * 1e8) / 1e8;
 
 }
 
@@ -100,7 +119,7 @@ double test_distorce(const PlanImage& img, const Color& test_color) {
 		}
 	}
 
-	if (cnt < 3)
+	if (cnt < 4)
 		return numeric_limits<double>::max();
 
 	if (sumx * sumx / cnt == sumx2) {
@@ -151,9 +170,9 @@ bool test_sign(double r_max, double c[NUMCOEF])
 		return c[2] > 0;*/
 
 	double r1, r2;
-	if (c[0] < 0) // если значение производной в нуле отрицательно, намъ не годится
+	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
 		return false;
-	if (c[0] == 0) { // проще рассмотреть этотъ случай сейчасъ, чтобъ онъ потомъ не путался подъ ногами
+	if (c[0] == 0) { // проще рассмотреть этот случай сейчас, чтоб он потом не путался под ногами
 		if (c[2] == 0) return c[1] > 0;
 		r1 = -2. * c[1] / (3. * c[2]);
 		if (r1 > 0 && r1 < r_max) return false;
@@ -198,23 +217,18 @@ unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 	double theta = M_PI / 4;
 
 	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
+	outImage->initNewR(coef);
 
 	int xx, yy;
-	double alpha, r, sourceX, sourceY, ratio;
+	double alpha, r, sourceX, sourceY;
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
 			xx = x - inImage.pivotX;
 			yy = y - inImage.pivotY;
-			r = sqrt(xx * xx + yy * yy);
 
-			if (r != 0)
-				ratio = fun(r, coef) / r;
-			else
-				ratio = 0;
-
-			sourceX = inImage.pivotX + ratio * xx;
-			sourceY = inImage.pivotY + ratio * yy;
+			sourceX = inImage.pivotX + outImage->precalc[abs(xx)][abs(yy)] * xx;
+			sourceY = inImage.pivotY + outImage->precalc[abs(xx)][abs(yy)] * yy;
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
