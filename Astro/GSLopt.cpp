@@ -1,6 +1,4 @@
 #include "Astro.h"
-#include <filesystem>
-#include <memory>
 #include "gsl/gsl_multimin.h"
 
 class GslImage : public PlanImage {
@@ -13,7 +11,7 @@ public:
 
 double gsl_distorce(const gsl_vector* x, void* params) {
 	GslImage* img = (GslImage*)params;
-	return test_distorce(*distorce(*(PlanImage*)img, x->data), img->test_color);
+	return test_distorce(distorce((PlanImage*)img, x->data), img->test_color);
 }
 
 int main(int argc, char** argstr) {

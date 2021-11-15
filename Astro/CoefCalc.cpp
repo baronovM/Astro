@@ -1,5 +1,4 @@
 #include "Astro.h"
-#include <filesystem>
 #include <sstream>
 
 int main(int argc, char** argstr) {
@@ -11,7 +10,7 @@ int main(int argc, char** argstr) {
 	else
 		cout << "Названия входного и выходного изображений - {Название входного, без пробелов и с расширением} {Название выходного}:\n";
 
-	PlanImage inImage(imagePath);
+	PlanImage* inImage = new PlanImage(imagePath);
 	Color test_color(255, 0, 255);
 
 	double test_r;
@@ -23,41 +22,40 @@ int main(int argc, char** argstr) {
 		for (coef[1] = -2.5; coef[1] < 2.5; coef[1] += 0.025) {
 			for (coef[2] = -0.05; coef[2] < 0.05; coef[2] += 0.0005) {
 				roundArr(coef);
-				test_r = fun(inImage.theR, coef);
-				if (LOWER_LIMIT * inImage.theR < test_r && test_r < UPPER_LIMIT * inImage.theR
-				&& test_sign(inImage.theR, coef)) {
+				test_r = fun(inImage->theR, coef);
+				if (LOWER_LIMIT * inImage->theR < test_r && test_r < UPPER_LIMIT * inImage->theR
+				&& test_sign(inImage->theR, coef)) {
 					ostringstream temp;
 					for (int i = 0; i < NUMCOEF; ++i)
 						temp << "__" << coef[i];
-					unique_ptr<PlanImage> img;
+					PlanImage* img;
 					if (!filesystem::exists("out/" + imagePath + temp.str() + ".png")) {
 						img = distorce(inImage, coef);
 						img->saveToFile("out/" + imagePath + temp.str() + ".png");
-						cur = test_distorce(*img, test_color);
 					}
 					else {
-						img = make_unique<PlanImage>("out/" + imagePath + temp.str() + ".png");
-						cur = test_distorce(*img, test_color);
+						img = new PlanImage("out/" + imagePath + temp.str() + ".png");
 					}
+					cur = test_distorce(img, test_color);
 					if (cur < mn) {
 						memcpy(best, coef, NUMCOEF * sizeof(double));
 						mn = cur;
 					}
+					delete img;
 				}
 			}
-			/*for (auto i : coef)
-				cout << i << " ";
-			cout << "\n";*/
 		}
 	}
+	delete inImage;
 	ofstream fout("coef.txt");
 	for (auto i : best) {
 		fout << i << " ";
 	}
 	fout.close();
 
-	unique_ptr<PlanImage> result = distorce(inImage, best);
+	PlanImage* result = distorce(inImage, best);
 	result->saveToFile(outImagePath);
+	delete result;
 
 	return 0;
 }

@@ -80,22 +80,22 @@ double binpow(double x, int n) {
 
 //-----------------------------------------------------------------------------
 
-Color interpolation(double x, double y, const PlanImage& image) {
+Color interpolation(double x, double y, PlanImage* image) {
 	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
-		return image.getPixel(x, y);
+		return image->getPixel(x, y);
 	if (x1 == x2) {
-		pixel = NumColor(image.getPixel(x, y1)) * (y2 - y) + NumColor(image.getPixel(x, y2)) * (y - y1);
+		pixel = NumColor(image->getPixel(x, y1)) * (y2 - y) + NumColor(image->getPixel(x, y2)) * (y - y1);
 		return pixel;
 	}
 	if (y1 == y2) {
-		pixel = NumColor(image.getPixel(x1, y)) * (x2 - x) + NumColor(image.getPixel(x2, y)) * (x - x1);
+		pixel = NumColor(image->getPixel(x1, y)) * (x2 - x) + NumColor(image->getPixel(x2, y)) * (x - x1);
 		return pixel;
 	}
 
-	NumColor r1 = NumColor(image.getPixel(x1, y1)) * (x2 - x) + NumColor(image.getPixel(x2, y1)) * (x - x1);
-	NumColor r2 = NumColor(image.getPixel(x1, y2)) * (x2 - x) + NumColor(image.getPixel(x2, y2)) * (x - x1);
+	NumColor r1 = NumColor(image->getPixel(x1, y1)) * (x2 - x) + NumColor(image->getPixel(x2, y1)) * (x - x1);
+	NumColor r2 = NumColor(image->getPixel(x1, y2)) * (x2 - x) + NumColor(image->getPixel(x2, y2)) * (x - x1);
 	pixel = r1 * ((y2 - y) / (y2 - y1)) + r2 * ((y - y1) / (y2 - y1));
 	return pixel;
 }
@@ -103,12 +103,12 @@ Color interpolation(double x, double y, const PlanImage& image) {
 //-----------------------------------------------------------------------------
 
 // Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
-double test_distorce(const PlanImage& img, const Color& test_color) {
+double test_distorce(PlanImage* img, const Color& test_color) {
 	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0;
 	vector<Vector2u> coords;
-	for (int x = 0; x < img.getSize().x; x++) {
-		for (int y = 0; y < img.getSize().y; y++) {
-			if (NumColor(img.getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
+	for (int x = 0; x < img->getSize().x; x++) {
+		for (int y = 0; y < img->getSize().y; y++) {
+			if (NumColor(img->getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
 				++cnt;
 				sumx += x;
 				sumx2 += x * x;
@@ -147,28 +147,6 @@ double fun(double r, double c[NUMCOEF]) {
 
 bool test_sign(double r_max, double c[NUMCOEF])
 {
-	/*if (c[2] == 0) {
-		if (c[1] == 0)
-			return c[0] > 0;
-		double d = -c[0] / (2 * c[1]);
-		return c[0] > 0 && (d <= 0 || d >= r_max);
-	}
-	double D4 = c[1] * c[1] - 3.0 * c[0] * c[2];
-	if (D4 > 0) {
-		double r1, r2;
-		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
-		r2 = (-c[1] + sqrt(D4)) / (3 * c[2]);
-		if (r1 > r2)
-			swap(r1, r2);
-		if (r1 > r_max || r2 < 0)
-			return c[0] > 0;
-		if (r1 > 0 || r2 < r_max)
-			return false;
-		return c[0] > 0;
-	}
-	else
-		return c[2] > 0;*/
-
 	double r1, r2;
 	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
 		return false;
@@ -207,16 +185,12 @@ bool test_sign(double r_max, double c[NUMCOEF])
 
 //-----------------------------------------------------------------------------
 
-unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
-
-	//for (int i = 0; i < NUMCOEF; ++i)
-		//cout << coef[i] << " ";
-
-	Vector2u imgSize = inImage.getSize();
+PlanImage* distorce(PlanImage* inImage, double coef[NUMCOEF]) {
+	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
 
-	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
+	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
 	outImage->initNewR(coef);
 
 	int xx, yy;
@@ -224,11 +198,11 @@ unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
-			xx = x - inImage.pivotX;
-			yy = y - inImage.pivotY;
+			xx = x - inImage->pivotX;
+			yy = y - inImage->pivotY;
 
-			sourceX = inImage.pivotX + outImage->precalc[abs(xx)][abs(yy)] * xx;
-			sourceY = inImage.pivotY + outImage->precalc[abs(xx)][abs(yy)] * yy;
+			sourceX = inImage->pivotX + outImage->precalc[abs(xx)][abs(yy)] * xx;
+			sourceY = inImage->pivotY + outImage->precalc[abs(xx)][abs(yy)] * yy;
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;
@@ -240,26 +214,25 @@ unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]) {
 	return outImage;
 }
 
-unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double k) {
-
-	Vector2u imgSize = inImage.getSize();
+PlanImage* distorce_dirch(PlanImage* inImage, double f, double k) {
+	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
 
 	if (f == 0.0) {
-		if (k == 0.0) f = inImage.theR / theta;
-		else if (k > 0.0) f = inImage.theR * k / tan(k * theta);
-		else { f = inImage.theR * k / sin(k * theta); if (k < -1) f *= fabs(k); }
+		if (k == 0.0) f = inImage->theR / theta;
+		else if (k > 0.0) f = inImage->theR * k / tan(k * theta);
+		else { f = inImage->theR * k / sin(k * theta); if (k < -1) f *= fabs(k); }
 	}
-	unique_ptr<PlanImage> outImage = make_unique<PlanImage>(imgSize);	// Итоговое изображение.
+	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
 	double alpha, r, dist, sourceX, sourceY, phi;
 
 	for (int x = 0; x < imgSize.x; x++) {
 		for (int y = 0; y < imgSize.y; y++) {
-			xx = x - inImage.pivotX;
-			yy = y - inImage.pivotY;
+			xx = x - inImage->pivotX;
+			yy = y - inImage->pivotY;
 			dist = sqrt(xx * xx + yy * yy);
 			alpha = atan2((double)yy, (double)xx);
 
@@ -268,8 +241,8 @@ unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double 
 			else if (k < 0.0) r = f * sin(phi * k) / k;
 			else r = f * tan(phi * k) / k;
 
-			double sourceX = inImage.pivotX + r * cos(alpha);
-			double sourceY = inImage.pivotY + r * sin(alpha);
+			double sourceX = inImage->pivotX + r * cos(alpha);
+			double sourceY = inImage->pivotY + r * sin(alpha);
 
 			if (sourceX < 0 || sourceX >= imgSize.x - 1 || sourceY < 0 || sourceY >= imgSize.y - 1)
 				continue;

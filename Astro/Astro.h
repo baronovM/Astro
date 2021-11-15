@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 #include <fstream>
-#include <memory>
 #include <limits>
+#include <filesystem>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "SFML/Graphics.hpp"
@@ -45,12 +45,12 @@ public:
 
 void roundArr(double c[NUMCOEF]);
 double binpow(double x, int n);
-Color interpolation(double x, double y, const PlanImage& image);
-double test_distorce(const PlanImage& img, const Color& test_color);
+Color interpolation(double x, double y, PlanImage* image);
+double test_distorce(PlanImage* img, const Color& test_color);
 double fun(double r, double c[NUMCOEF]);
 bool test_sign(double r_max, double c[NUMCOEF]);
-unique_ptr<PlanImage> distorce(const PlanImage& inImage, double coef[NUMCOEF]);
-unique_ptr<PlanImage> distorce_dirch(const PlanImage& inImage, double f, double k);
+PlanImage* distorce(PlanImage* inImage, double coef[NUMCOEF]);
+PlanImage* distorce_dirch(PlanImage* inImage, double f, double k);
 
 
 
