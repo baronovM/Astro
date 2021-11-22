@@ -1,5 +1,6 @@
 #include "Astro.h"
 #include "gsl/gsl_multimin.h"
+#include <sstream>
 
 class GslImage : public PlanImage {
 public:
@@ -9,13 +10,30 @@ public:
 	}
 };
 
+string imagePath, outImagePath;
+
 double gsl_distorce(const gsl_vector* x, void* params) {
-	GslImage* img = (GslImage*)params;
-	return test_distorce(distorce((PlanImage*)img, x->data), img->test_color);
+    const GslImage* gslimg = (GslImage*)params;
+    double test_r = fun(gslimg->theR, x->data);
+    if (LOWER_LIMIT * gslimg->theR < test_r && test_r < UPPER_LIMIT * gslimg->theR
+        && test_sign(gslimg->theR, x->data)) {
+        ostringstream temp;
+        for (int i = 0; i < NUMCOEF; ++i)
+            temp << "__" << x->data[i];
+        PlanImage* img;
+        if (!filesystem::exists("out/" + imagePath + temp.str() + ".png")) {
+            img = distorce((PlanImage*)gslimg, x->data);
+            img->saveToFile("out/" + imagePath + temp.str() + ".png");
+        }
+        else {
+            img = new PlanImage("out/" + imagePath + temp.str() + ".png");
+        }
+        return test_distorce(img, gslimg->test_color);
+    }
+    return numeric_limits<double>::max();
 }
 
 int main(int argc, char** argstr) {
-	string imagePath, outImagePath;
 	if (argc == 3) {
 		imagePath = argstr[1];
 		outImagePath = argstr[2];

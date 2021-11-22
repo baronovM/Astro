@@ -40,17 +40,17 @@ public:
 	PlanImage(string filePath);
 
 	PlanImage(Vector2u si);
-	void initNewR(double coef[NUMCOEF]);
+	void initNewR(const double coef[NUMCOEF]);
 };
 
 void roundArr(double c[NUMCOEF]);
 double binpow(double x, int n);
-Color interpolation(double x, double y, PlanImage* image);
-double test_distorce(PlanImage* img, const Color& test_color);
-double fun(double r, double c[NUMCOEF]);
-bool test_sign(double r_max, double c[NUMCOEF]);
-PlanImage* distorce(PlanImage* inImage, double coef[NUMCOEF]);
-PlanImage* distorce_dirch(PlanImage* inImage, double f, double k);
+Color interpolation(double x, double y, const PlanImage* image);
+double test_distorce(const PlanImage* img, const Color& test_color);
+double fun(double r, const double c[NUMCOEF]);
+bool test_sign(double r_max, const double c[NUMCOEF]);
+PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]);
+PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k);
 
 
 

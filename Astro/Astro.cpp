@@ -20,7 +20,7 @@ PlanImage::PlanImage(Vector2u si) : Image() {
 	theR = hypot(pivotX, pivotY);
 }
 
-void PlanImage::initNewR(double coef[NUMCOEF]) {
+void PlanImage::initNewR(const double coef[NUMCOEF]) {
 	++pivotX;
 	++pivotY;
 	precalc.resize(pivotX);
@@ -80,7 +80,7 @@ double binpow(double x, int n) {
 
 //-----------------------------------------------------------------------------
 
-Color interpolation(double x, double y, PlanImage* image) {
+Color interpolation(double x, double y, const PlanImage* image) {
 	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
@@ -103,7 +103,7 @@ Color interpolation(double x, double y, PlanImage* image) {
 //-----------------------------------------------------------------------------
 
 // Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
-double test_distorce(PlanImage* img, const Color& test_color) {
+double test_distorce(const PlanImage* img, const Color& test_color) {
 	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0;
 	vector<Vector2u> coords;
 	for (int x = 0; x < img->getSize().x; x++) {
@@ -141,11 +141,11 @@ double test_distorce(PlanImage* img, const Color& test_color) {
 
 //-----------------------------------------------------------------------------
 
-double fun(double r, double c[NUMCOEF]) {
+double fun(double r, const double c[NUMCOEF]) {
 	return c[2] * binpow(r, 3) + c[1] * r * r + c[0] * r;
 }
 
-bool test_sign(double r_max, double c[NUMCOEF])
+bool test_sign(double r_max, const double c[NUMCOEF])
 {
 	double r1, r2;
 	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
@@ -185,7 +185,7 @@ bool test_sign(double r_max, double c[NUMCOEF])
 
 //-----------------------------------------------------------------------------
 
-PlanImage* distorce(PlanImage* inImage, double coef[NUMCOEF]) {
+PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]) {
 	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
@@ -214,7 +214,7 @@ PlanImage* distorce(PlanImage* inImage, double coef[NUMCOEF]) {
 	return outImage;
 }
 
-PlanImage* distorce_dirch(PlanImage* inImage, double f, double k) {
+PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k) {
 	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
