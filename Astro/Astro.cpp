@@ -4,7 +4,7 @@ PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
 
 PlanImage::PlanImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
-		throw "Не удалось загрузить изображение из файла " + filePath;
+		throw runtime_error("Не удалось загрузить изображение из файла " + filePath);
 	}
 	else {
 		pivotX = getSize().x / 2;
@@ -181,6 +181,49 @@ bool test_sign(double r_max, const double c[NUMCOEF])
 	if (r1 > 0 || r2 < r_max)
 		return false;
 	return true;
+}
+
+
+double d_test_sign(double r_max, const double c[NUMCOEF])
+{
+	double r1, r2;
+	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
+		return -c[0];
+	if (c[0] == 0) { // проще рассмотреть этот случай сейчас, чтоб он потом не путался под ногами
+		if (c[2] == 0) return -c[1];
+		r1 = -2. * c[1] / (3. * c[2]);
+		if (r1 > 0 && r1 < r_max) return -r1 * (r1 - r_max);
+		if (r1 <= 0) return -c[2];
+		else return c[2];
+	}
+	if (c[2] == 0) {
+		if (c[1] == 0) return 0;
+		r1 = -c[0] / (2 * c[1]);
+		return -r1 * (r1 - r_max);
+	}
+
+	if (fabs(c[0] * c[2]) < 10000. * DBL_EPSILON * c[1] * c[1]) {
+		r1 = -2. * c[1] / (3. * c[2]);
+		r2 = -c[0] / (2 * c[1]);
+	}
+	else {
+		double D4 = c[1] * c[1] - 3.0 * c[0] * c[2];
+		if (D4 < 0)
+			return D4;
+		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
+		r2 = (-c[1] + sqrt(D4)) / (3 * c[2]);
+	}
+	if (r1 > r2)
+		swap(r1, r2);
+	if (r1 >= r_max)
+		return r_max - r1;
+	if (r2 < 0)
+		return r2;
+	if (r1 > 0)
+		return r1;
+	if (r2 < r_max)
+		return r_max - r2;
+	return 1.0;
 }
 
 //-----------------------------------------------------------------------------

@@ -1,10 +1,13 @@
 #pragma once
-#include <iostream>
 #include <fstream>
 #include <limits>
-//#include <filesystem>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <iostream>
+#include <iomanip>
+#include <filesystem>
+#include <sstream>
+#include <vector>
 #include "SFML/Graphics.hpp"
 
 using namespace std;
@@ -49,6 +52,7 @@ Color interpolation(double x, double y, const PlanImage* image);
 double test_distorce(const PlanImage* img, const Color& test_color);
 double fun(double r, const double c[NUMCOEF]);
 bool test_sign(double r_max, const double c[NUMCOEF]);
+double d_test_sign(double r_max, const double c[NUMCOEF]);
 PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]);
 PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k);
 

@@ -1,5 +1,4 @@
 #include "Astro.h"
-#include <sstream>
 
 int main(int argc, char** argstr) {
 	string imagePath, outImagePath;
