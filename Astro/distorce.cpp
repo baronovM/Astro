@@ -15,9 +15,11 @@ int main(int argc, char** argv) {
 		inImagePath = argv[1];
 		outImagePath = argv[2];
 	}
-	PlanImage inImage(inImagePath);
-	unique_ptr<PlanImage> outImagePtr = distorce(inImage, coef);
-	outImagePtr->saveToFile(outImagePath);
+	SmartImage* inImage = new SmartImage(inImagePath);
+	SmartImage* outImage = distorce(inImage, coef);
+	outImage->saveToFile(outImagePath);
+	delete inImage;
+	delete outImage;
 
 	return 0;
 }

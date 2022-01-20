@@ -1,8 +1,8 @@
 ﻿#include "Astro.h"
 
-PlanImage::PlanImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
+SmartImage::SmartImage() : Image(), pivotX(0), pivotY(0), theR(0) {}
 
-PlanImage::PlanImage(string filePath) : Image() {
+SmartImage::SmartImage(string filePath) : Image() {
 	if (!loadFromFile(filePath)) {
 		throw runtime_error("Не удалось загрузить изображение из файла " + filePath);
 	}
@@ -13,14 +13,14 @@ PlanImage::PlanImage(string filePath) : Image() {
 	}
 }
 
-PlanImage::PlanImage(Vector2u si) : Image() {
+SmartImage::SmartImage(Vector2u si) : Image() {
 	create(si.x, si.y);
 	pivotX = si.x / 2;
 	pivotY = si.y / 2;
 	theR = hypot(pivotX, pivotY);
 }
 
-void PlanImage::initNewR(const double coef[NUMCOEF]) {
+void SmartImage::initNewR(const double coef[NUMCOEF]) {
 	++pivotX;
 	++pivotY;
 	precalc.resize(pivotX);
@@ -28,11 +28,11 @@ void PlanImage::initNewR(const double coef[NUMCOEF]) {
 	precalc[0][0] = 0;
 	for (int i = 1; i < pivotX; ++i) {
 		precalc[i].resize(pivotY);
-		precalc[0][i] = precalc[i][0] = fun(i, coef) / i;
+		precalc[0][i] = precalc[i][0] = func(i, coef) / i;
 	}
 	for (int i = 1; i < pivotX; ++i) {
 		for (int j = 1; j <= i; ++j) {
-			precalc[j][i] = precalc[i][j] = fun(hypot(i, j), coef) / hypot(i, j);
+			precalc[j][i] = precalc[i][j] = func(hypot(i, j), coef) / hypot(i, j);
 		}
 	}
 	--pivotX;
@@ -80,7 +80,7 @@ double binpow(double x, int n) {
 
 //-----------------------------------------------------------------------------
 
-Color interpolation(double x, double y, const PlanImage* image) {
+Color interpolation(double x, double y, const SmartImage* image) {
 	NumColor pixel;
 	double x1 = floor(x), x2 = ceil(x), y1 = floor(y), y2 = ceil(y);
 	if (x1 == x2 && y1 == y2)
@@ -103,7 +103,7 @@ Color interpolation(double x, double y, const PlanImage* image) {
 //-----------------------------------------------------------------------------
 
 // Проверить, насколько правильно искривили; изображение передаётся по константной ссылке
-double test_distorce(const PlanImage* img, const Color& test_color) {
+double test_distorce(const SmartImage* img, const Color& test_color) {
 	int sumx = 0, sumy = 0, sumx2 = 0, sumxy = 0, cnt = 0;
 	vector<Vector2u> coords;
 	for (int x = 0; x < img->getSize().x; x++) {
@@ -119,7 +119,7 @@ double test_distorce(const PlanImage* img, const Color& test_color) {
 		}
 	}
 
-	if (cnt < 4)
+	if (cnt < 5)
 		return numeric_limits<double>::max();
 
 	if (sumx * sumx / cnt == sumx2) {
@@ -141,11 +141,11 @@ double test_distorce(const PlanImage* img, const Color& test_color) {
 
 //-----------------------------------------------------------------------------
 
-double fun(double r, const double c[NUMCOEF]) {
+double func(double r, const double c[NUMCOEF]) {
 	return c[2] * binpow(r, 3) + c[1] * r * r + c[0] * r;
 }
 
-bool test_sign(double r_max, const double c[NUMCOEF])
+/*bool test_sign(double r_max, const double c[NUMCOEF])
 {
 	double r1, r2;
 	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
@@ -181,59 +181,25 @@ bool test_sign(double r_max, const double c[NUMCOEF])
 	if (r1 > 0 || r2 < r_max)
 		return false;
 	return true;
-}
+}*/
 
 
 double d_test_sign(double r_max, const double c[NUMCOEF])
 {
-	double r1, r2;
-	if (c[0] < 0) // если значение производной в нуле отрицательно, нам не годится
-		return -c[0];
-	if (c[0] == 0) { // проще рассмотреть этот случай сейчас, чтоб он потом не путался под ногами
-		if (c[2] == 0) return -c[1];
-		r1 = -2. * c[1] / (3. * c[2]);
-		if (r1 > 0 && r1 < r_max) return -r1 * (r1 - r_max);
-		if (r1 <= 0) return -c[2];
-		else return c[2];
-	}
-	if (c[2] == 0) {
-		if (c[1] == 0) return 0;
-		r1 = -c[0] / (2 * c[1]);
-		return -r1 * (r1 - r_max);
-	}
+	// 3c_2 * d^2 + 2*c_1 * d + c_0
+	double x = -(c[1]) / (3 * c[2]);// -b / (2 * a)
+	return x * (r_max - x);
 
-	if (fabs(c[0] * c[2]) < 10000. * DBL_EPSILON * c[1] * c[1]) {
-		r1 = -2. * c[1] / (3. * c[2]);
-		r2 = -c[0] / (2 * c[1]);
-	}
-	else {
-		double D4 = c[1] * c[1] - 3.0 * c[0] * c[2];
-		if (D4 < 0)
-			return D4;
-		r1 = (-c[1] - sqrt(D4)) / (3 * c[2]);
-		r2 = (-c[1] + sqrt(D4)) / (3 * c[2]);
-	}
-	if (r1 > r2)
-		swap(r1, r2);
-	if (r1 >= r_max)
-		return r_max - r1;
-	if (r2 < 0)
-		return r2;
-	if (r1 > 0)
-		return r1;
-	if (r2 < r_max)
-		return r_max - r2;
-	return 1.0;
 }
 
 //-----------------------------------------------------------------------------
 
-PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]) {
+SmartImage* distorce(const SmartImage* inImage, const double coef[NUMCOEF]) {
 	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
 
-	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
+	SmartImage* outImage = new SmartImage(imgSize);	// Итоговое изображение.
 	outImage->initNewR(coef);
 
 	int xx, yy;
@@ -257,7 +223,7 @@ PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]) {
 	return outImage;
 }
 
-PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k) {
+SmartImage* distorce_dirch(const SmartImage* inImage, double f, double k) {
 	Vector2u imgSize = inImage->getSize();
 
 	double theta = M_PI / 4;
@@ -267,7 +233,7 @@ PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k) {
 		else if (k > 0.0) f = inImage->theR * k / tan(k * theta);
 		else { f = inImage->theR * k / sin(k * theta); if (k < -1) f *= fabs(k); }
 	}
-	PlanImage* outImage = new PlanImage(imgSize);	// Итоговое изображение.
+	SmartImage* outImage = new SmartImage(imgSize);	// Итоговое изображение.
 
 	int xx, yy;
 	double alpha, r, dist, sourceX, sourceY, phi;

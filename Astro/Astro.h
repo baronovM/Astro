@@ -14,10 +14,9 @@ using namespace std;
 using namespace sf;
 
 #define NUMCOEF 3
-#define THRESHOLD 30
-#define LOWER_LIMIT 0.8
-#define UPPER_LIMIT 1.3
-#define	MIN_DIFF_ANGLE M_PI / 12
+#define THRESHOLD 20
+#define LOWER_LIMIT 0.7
+#define UPPER_LIMIT 1.4
 
 typedef Vector2<double> Vector2d;
 
@@ -35,26 +34,26 @@ public:
 };
 
 
-class PlanImage : public Image {
+class SmartImage : public Image {
 public:
 	vector<vector<double>> precalc;
 	int pivotX, pivotY, theR;
-	PlanImage();
-	PlanImage(string filePath);
+	SmartImage();
+	SmartImage(string filePath);
 
-	PlanImage(Vector2u si);
+	SmartImage(Vector2u si);
 	void initNewR(const double coef[NUMCOEF]);
 };
 
 void roundArr(double c[NUMCOEF]);
 double binpow(double x, int n);
-Color interpolation(double x, double y, const PlanImage* image);
-double test_distorce(const PlanImage* img, const Color& test_color);
-double fun(double r, const double c[NUMCOEF]);
-bool test_sign(double r_max, const double c[NUMCOEF]);
+Color interpolation(double x, double y, const SmartImage* image);
+double test_distorce(const SmartImage* img, const Color& test_color);
+double func(double r, const double c[NUMCOEF]);
+//bool test_sign(double r_max, const double c[NUMCOEF]);
 double d_test_sign(double r_max, const double c[NUMCOEF]);
-PlanImage* distorce(const PlanImage* inImage, const double coef[NUMCOEF]);
-PlanImage* distorce_dirch(const PlanImage* inImage, double f, double k);
+SmartImage* distorce(const SmartImage* inImage, const double coef[NUMCOEF]);
+SmartImage* distorce_dirch(const SmartImage* inImage, double f, double k);
 
 
 
