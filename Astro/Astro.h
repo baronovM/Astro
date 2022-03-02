@@ -51,7 +51,8 @@ Color interpolation(double x, double y, const SmartImage* image);
 double test_distorce(const SmartImage* img, const Color& test_color);
 double func(double r, const double c[NUMCOEF]);
 //bool test_sign(double r_max, const double c[NUMCOEF]);
-double d_test_sign(double r_max, const double c[NUMCOEF]);
+//double d_test_sign(double r_max, const double c[NUMCOEF]);
+double cont_test_sign(double r_max, const double c[NUMCOEF]);
 SmartImage* distorce(const SmartImage* inImage, const double coef[NUMCOEF]);
 SmartImage* distorce_dirch(const SmartImage* inImage, double f, double k);
 

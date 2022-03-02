@@ -28,13 +28,18 @@ void SmartImage::initNewR(const double coef[NUMCOEF]) {
 	precalc[0][0] = 0;
 	for (int i = 1; i < pivotX; ++i) {
 		precalc[i].resize(pivotY);
-		precalc[0][i] = precalc[i][0] = func(i, coef) / i;
+		precalc[i][0] = func(i, coef) / i;
+		if (i < pivotY)
+			precalc[0][i] = precalc[i][0];
 	}
 	for (int i = 1; i < pivotX; ++i) {
-		for (int j = 1; j <= i; ++j) {
-			precalc[j][i] = precalc[i][j] = func(hypot(i, j), coef) / hypot(i, j);
+		for (int j = 1; j <= min(i, pivotY - 1); ++j) {
+			precalc[i][j] = func(hypot(i, j), coef) / hypot(i, j);
+			if (i < pivotY && j < pivotX)
+				precalc[j][i] = precalc[i][j];
 		}
 	}
+	
 	--pivotX;
 	--pivotY;
 }
@@ -123,17 +128,17 @@ double test_distorce(const SmartImage* img, const Color& test_color) {
 		return numeric_limits<double>::max();
 
 	if (sumx * sumx / cnt == sumx2) {
-		if (sumxy == sumx * sumy / cnt)
-			return 0;
-		return numeric_limits<double>::max();
+		//if (sumxy == sumx * sumy / cnt)
+			return double(50) / cnt;
+		return 0;
 	}
 
 	double a = (double(sumxy) - double(sumx) * sumy / cnt) / (double(sumx2) - double(sumx) * sumx / cnt);
-	double b_ = double(sumy - a * sumx) / cnt;
+	double b = double(sumy - a * sumx) / cnt;
 	double ans = 0;
 
 	for (auto i : coords) {
-		ans += sqr(a * i.x + b_ - i.y);
+		ans += sqr(a * i.x + b - i.y);
 	}
 
 	return ans / cnt;
@@ -184,12 +189,32 @@ double func(double r, const double c[NUMCOEF]) {
 }*/
 
 
-double d_test_sign(double r_max, const double c[NUMCOEF])
+/*double d_test_sign(double r_max, const double c[NUMCOEF])
 {
 	// 3c_2 * d^2 + 2*c_1 * d + c_0
 	double x = -(c[1]) / (3 * c[2]);// -b / (2 * a)
+	x = min(max(x, 0.), r_max);
 	return x * (r_max - x);
 
+}*/
+
+double cont_test_sign(double r_max, const double c[NUMCOEF]) {
+	double r1, r2;
+	if (c[0] < 0) { // если значение производной в нуле отрицательно, нам не годится
+		cout << "in test_sign c[0] " << c[0] << " < 0\n";
+		return c[0];
+	}
+	if (c[2] == 0) {
+		if (c[1] >= 0) return c[0];
+		return 2 * c[1] * r_max + c[0];
+	}
+	if (c[2] > 0) {
+		double x = -(c[1]) / (3 * c[2]); // -b / (2 * a)
+		x = min(max(x, 0.), r_max);
+		return 3 * c[2] * x * x + 2 * c[1] * x + c[0];
+	}
+	return min(c[0], 3 * c[2] * r_max * r_max + 2 * c[1] * r_max + c[0]);
+	
 }
 
 //-----------------------------------------------------------------------------

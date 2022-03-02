@@ -24,10 +24,8 @@ double myvfunc(const std::vector<double>& x, std::vector<double>& grad, void* my
     for (int i = 0; i < NUMCOEF; ++i)
         temp << "__" << x[i];
     SmartImage* img;
-    //cout << "out/" + nloptimg->imagePath + temp.str() + ".png";
     if (!filesystem::exists("out/" + nloptimg->imagePath + temp.str() + ".png")) {
         img = distorce(nloptimg->img, x.data());
-        //img->saveToFile("out/" + nloptimg->imagePath + temp.str() + ".png");
     }
     else {
         img = new SmartImage("out/" + nloptimg->imagePath + temp.str() + ".png");
@@ -55,8 +53,7 @@ double upperR(const std::vector<double>& x, std::vector<double>& grad, void* dat
 double signConstraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
     const NloptImage* nloptimg = reinterpret_cast<NloptImage*>(data);
-    double test_r = func(nloptimg->img->theR, x.data());
-    return d_test_sign(nloptimg->img->theR, x.data());
+    return -cont_test_sign(nloptimg->img->theR, x.data());
 }
 
 int main(int argc, char** argstr) {
@@ -72,14 +69,23 @@ int main(int argc, char** argstr) {
         return 0;
     }
 
-    Color test_color(255, 0, 255);
+    Color test_color;
+    try {
+        ifstream fin("color.txt");
+        fin >> test_color.r >> test_color.g >> test_color.b;
+        fin.close();
+    }
+    catch (exception& e) {
+        test_color = { 255, 0, 255 };
+    }
+
 
     nlopt::opt opt(nlopt::LN_COBYLA, 3);
     vector<double> lb(3);
-    lb[0] = 0; lb[1] = -10; lb[2] = -0.1;
+    lb[0] = 0; lb[1] = -12; lb[2] = -0.2;
     opt.set_lower_bounds(lb);
     vector<double> ub(3);
-    ub[0] = 20; ub[1] = 5; ub[2] = 0.01;
+    ub[0] = 10; ub[1] = 7; ub[2] = 0.02;
     opt.set_upper_bounds(ub);
     NloptImage* data = new NloptImage(imagePath, test_color);
     opt.set_min_objective(myvfunc, data);
@@ -87,7 +93,7 @@ int main(int argc, char** argstr) {
     opt.add_inequality_constraint(lowerR, data);
     opt.add_inequality_constraint(upperR, data);
     opt.add_inequality_constraint(signConstraint, data);
-    opt.set_xtol_rel(5e-9);
+    opt.set_xtol_rel(1e-8);
     vector<double> x(3);
     x[0] = 1; x[1] = 0; x[2] = 0;
     //x[0] = double(rand() % 200) / 10; x[1] = double(rand() % 150) / 10 - 10; x[2] = double(rand() % 11) / 100 - 0.1;
@@ -100,7 +106,7 @@ int main(int argc, char** argstr) {
         cout << "found minimum at f(" << x[0] << "," << x[1] << "," << x[2] << ") = "
             << setprecision(10) << minf << endl;
 
-        cout << test_distorce(distorce(data->img, x.data()), test_color) << " " << lowerR(x, x, data) << " " << upperR(x, x, data) << " " << signConstraint(x, x, data) << "\n";
+        cout << lowerR(x, x, data) << " " << upperR(x, x, data) << " " << signConstraint(x, x, data) << "\n";
 
         ofstream fout("coef.txt");
         for (auto i : x) {
