@@ -18,7 +18,7 @@ public:
 
 double myvfunc(const std::vector<double>& x, std::vector<double>& grad, void* my_func_data)
 {
-    const NloptImage* nloptimg = reinterpret_cast<NloptImage*>(my_func_data);
+    const NloptImage* nloptimg = static_cast<NloptImage*>(my_func_data);
 
     ostringstream temp;
     for (int i = 0; i < NUMCOEF; ++i)
@@ -38,21 +38,21 @@ double myvfunc(const std::vector<double>& x, std::vector<double>& grad, void* my
 
 double lowerR(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-    const NloptImage* nloptimg = reinterpret_cast<NloptImage*>(data);
+    const NloptImage* nloptimg = static_cast<NloptImage*>(data);
     double test_r = func(nloptimg->img->theR, x.data());
     return -(test_r - LOWER_LIMIT * nloptimg->img->theR);
 }
 
 double upperR(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-    const NloptImage* nloptimg = reinterpret_cast<NloptImage*>(data);
+    const NloptImage* nloptimg = static_cast<NloptImage*>(data);
     double test_r = func(nloptimg->img->theR, x.data());
     return -(UPPER_LIMIT * nloptimg->img->theR - test_r);
 }
 
 double signConstraint(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-    const NloptImage* nloptimg = reinterpret_cast<NloptImage*>(data);
+    const NloptImage* nloptimg = static_cast<NloptImage*>(data);
     return -cont_test_sign(nloptimg->img->theR, x.data());
 }
 
@@ -98,8 +98,9 @@ int main(int argc, char** argstr) {
     x[0] = 1; x[1] = 0; x[2] = 0;
     //x[0] = double(rand() % 200) / 10; x[1] = double(rand() % 150) / 10 - 10; x[2] = double(rand() % 11) / 100 - 0.1;
     double minf;
-    cout << x[0] << " " << x[1] << " " << x[2] << "\n";
-    cout << lowerR(x, x, data) << " " << upperR(x, x, data) << " " << signConstraint(x, x, data) << "\n";
+    cout << test_distorce(data->img, test_color) << "\n";
+    //cout << x[0] << " " << x[1] << " " << x[2] << "\n";
+    //cout << lowerR(x, x, data) << " " << upperR(x, x, data) << " " << signConstraint(x, x, data) << "\n";
 
     try {
         nlopt::result result = opt.optimize(x, minf);

@@ -60,9 +60,9 @@ NumColor NumColor::operator*(const double& k) const {
 }
 
 // Returns absolut value!
-Uint8 NumColor::operator-(const NumColor& other) const
+int NumColor::operator-(const NumColor& other) const
 {
-	return abs(r - other.r) + abs(g - other.g) + abs(b - other.b);
+	return abs(int(r) - other.r) + abs(int(g) - other.g) + abs(int(b) - other.b);
 }
 
 //-----------------------------------------------------------------------------
@@ -114,6 +114,8 @@ double test_distorce(const SmartImage* img, const Color& test_color) {
 	for (int x = 0; x < img->getSize().x; x++) {
 		for (int y = 0; y < img->getSize().y; y++) {
 			if (NumColor(img->getPixel(x, y)) - NumColor(test_color) < THRESHOLD) {
+				//if (cnt < 15)
+					//cout << (int)img->getPixel(x, y).r << " " << (int)img->getPixel(x, y).g << " " << (int)img->getPixel(x, y).b << "\n";
 				++cnt;
 				sumx += x;
 				sumx2 += x * x;

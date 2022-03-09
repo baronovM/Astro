@@ -30,7 +30,7 @@ public:
 
 	NumColor(Uint8 r1, Uint8 g1, Uint8 b1, Uint8 a1);
 	NumColor operator*(const double& k) const;
-	Uint8 operator-(const NumColor& other) const;
+	int operator-(const NumColor& other) const;
 };
 
 
@@ -55,9 +55,6 @@ double func(double r, const double c[NUMCOEF]);
 double cont_test_sign(double r_max, const double c[NUMCOEF]);
 SmartImage* distorce(const SmartImage* inImage, const double coef[NUMCOEF]);
 SmartImage* distorce_dirch(const SmartImage* inImage, double f, double k);
-
-
-
 
 
 
