@@ -129,11 +129,8 @@ double test_distorce(const SmartImage* img, const Color& test_color) {
 	if (cnt < 5)
 		return numeric_limits<double>::max();
 
-	if (sumx * sumx / cnt == sumx2) {
-		//if (sumxy == sumx * sumy / cnt)
-			return double(50) / cnt;
+	if (sumx * sumx / cnt == sumx2)
 		return 0;
-	}
 
 	double a = (double(sumxy) - double(sumx) * sumy / cnt) / (double(sumx2) - double(sumx) * sumx / cnt);
 	double b = double(sumy - a * sumx) / cnt;
@@ -143,7 +140,7 @@ double test_distorce(const SmartImage* img, const Color& test_color) {
 		ans += sqr(a * i.x + b - i.y);
 	}
 
-	return ans / cnt;
+	return ans / pow(cnt, 1.5);
 }
 
 //-----------------------------------------------------------------------------
